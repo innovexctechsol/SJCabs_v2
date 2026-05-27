@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SJ Cabs — EmailJS Templates Reference</title>
+<style>
+  body{font-family:Arial,sans-serif;background:#111;color:#eee;padding:20px;max-width:900px;margin:0 auto}
+  h1{color:#FFB800;border-bottom:2px solid #FFB800;padding-bottom:10px}
+  h2{color:#FFB800;margin-top:40px;font-size:16px;background:#1a1a1a;padding:10px 14px;border-left:4px solid #FFB800}
+  .meta{font-size:12px;color:#888;margin-bottom:8px;padding:8px;background:#0a0a0a;border-radius:4px}
+  pre{background:#0a0a0a;border:1px solid #333;border-radius:6px;padding:16px;overflow-x:auto;font-size:12px;line-height:1.5;color:#ccc}
+  .note{background:#1a2a1a;border-left:3px solid #22c55e;padding:10px 14px;font-size:12px;color:#4ade80;margin:8px 0}
+  hr{border:none;border-top:1px solid #333;margin:40px 0}
+</style>
+</head>
+<body>
+
+<h1>🚖 SJ Cabs — EmailJS Templates Reference</h1>
+<p style="color:#888;font-size:13px">Paste each template's HTML into EmailJS → Email Templates → Content. Use the variable names exactly as shown.</p>
+
+<hr>
+
+<!-- ═══════════════ TEMPLATE 1: OTP ═══════════════ -->
+<h2>Template 1: sjcabs_otp — OTP Login Email</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_otp</strong> | Subject: <strong>{{otp_code}} is your SJ Cabs OTP</strong><br>
+  Variables: to_email, to_name, otp_code, expiry_mins
+</div>
+<div class="note">Used for: Customer login (sjcabs.html + login.html), Driver login, Captain Status login</div>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;/head&gt;
+&lt;body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif"&gt;
+&lt;table width="100%" cellpadding="0" cellspacing="0"&gt;&lt;tr&gt;&lt;td align="center" style="padding:40px 20px"&gt;
+  &lt;table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1)"&gt;
+    &lt;!-- Header --&gt;
+    &lt;tr&gt;&lt;td style="background:#07080D;padding:28px 32px;text-align:center"&gt;
+      &lt;h1 style="margin:0;font-family:Arial Black,sans-serif;font-size:28px;font-weight:900;color:#FFB800;letter-spacing:-1px"&gt;SJ CABS&lt;/h1&gt;
+      &lt;p style="margin:6px 0 0;font-size:12px;color:#5C5C72;letter-spacing:2px;text-transform:uppercase"&gt;Pune's Premium Cab Service&lt;/p&gt;
+    &lt;/td&gt;&lt;/tr&gt;
+    &lt;!-- Body --&gt;
+    &lt;tr&gt;&lt;td style="padding:36px 32px"&gt;
+      &lt;p style="margin:0 0 8px;font-size:16px;color:#333"&gt;Hi &lt;strong&gt;{{to_name}}&lt;/strong&gt;,&lt;/p&gt;
+      &lt;p style="margin:0 0 28px;font-size:14px;color:#666;line-height:1.6"&gt;Use the OTP below to log in to your SJ Cabs account. Do not share this code with anyone.&lt;/p&gt;
+      &lt;!-- OTP Box --&gt;
+      &lt;table width="100%" cellpadding="0" cellspacing="0"&gt;&lt;tr&gt;&lt;td align="center" style="padding:28px;background:#FFF8E7;border:2px dashed #FFB800;border-radius:12px;margin:0 0 24px"&gt;
+        &lt;p style="margin:0 0 6px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#888"&gt;Your OTP&lt;/p&gt;
+        &lt;p style="margin:0;font-size:42px;font-weight:900;letter-spacing:10px;color:#07080D;font-family:Arial Black,monospace"&gt;{{otp_code}}&lt;/p&gt;
+        &lt;p style="margin:10px 0 0;font-size:12px;color:#f97316"&gt;Valid for {{expiry_mins}} minutes&lt;/p&gt;
+      &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+      &lt;p style="margin:24px 0 0;font-size:13px;color:#999;line-height:1.6;background:#f9f9f9;padding:14px;border-radius:8px;border-left:3px solid #FFB800"&gt;
+        &lt;strong style="color:#333"&gt;Security tip:&lt;/strong&gt; SJ Cabs will never ask for your OTP over a call or message. If you did not request this, please ignore this email.
+      &lt;/p&gt;
+    &lt;/td&gt;&lt;/tr&gt;
+    &lt;!-- Footer --&gt;
+    &lt;tr&gt;&lt;td style="background:#07080D;padding:20px 32px;text-align:center"&gt;
+      &lt;p style="margin:0;font-size:12px;color:#5C5C72"&gt;SJ Cabs · Magarpatta, Hadapsar, Pune 411028&lt;/p&gt;
+      &lt;p style="margin:6px 0 0;font-size:12px;color:#5C5C72"&gt;support@innovexc.io · +91 70576 91597&lt;/p&gt;
+    &lt;/td&gt;&lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 2: BOOKING CONFIRMED ═══════════════ -->
+<h2>Template 2: sjcabs_booking_confirmed — Booking Confirmation</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_booking_confirmed</strong> | Subject: <strong>✅ Booking Confirmed — {{booking_id}} | SJ Cabs</strong><br>
+  Variables: to_email, to_name, booking_id, from_loc, to_loc, booking_type, pickup_time, fare, driver_name, driver_phone, vehicle, plate, payment_type, portal_link
+</div>
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;/head&gt;
+&lt;body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif"&gt;
+&lt;table width="100%" cellpadding="0" cellspacing="0"&gt;&lt;tr&gt;&lt;td align="center" style="padding:40px 20px"&gt;
+  &lt;table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1)"&gt;
+    &lt;tr&gt;&lt;td style="background:#07080D;padding:28px 32px;text-align:center"&gt;
+      &lt;h1 style="margin:0;font-family:Arial Black,sans-serif;font-size:28px;font-weight:900;color:#FFB800"&gt;SJ CABS&lt;/h1&gt;
+    &lt;/td&gt;&lt;/tr&gt;
+    &lt;!-- Green confirmed banner --&gt;
+    &lt;tr&gt;&lt;td style="background:#f0fdf4;border-bottom:1px solid #bbf7d0;padding:20px 32px;text-align:center"&gt;
+      &lt;p style="margin:0;font-size:32px"&gt;✅&lt;/p&gt;
+      &lt;h2 style="margin:8px 0 4px;font-size:20px;color:#15803d"&gt;Booking Confirmed!&lt;/h2&gt;
+      &lt;p style="margin:0;font-size:13px;color:#166534"&gt;Booking ID: &lt;strong style="font-family:monospace;font-size:15px"&gt;{{booking_id}}&lt;/strong&gt;&lt;/p&gt;
+    &lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td style="padding:28px 32px"&gt;
+      &lt;p style="margin:0 0 20px;font-size:15px;color:#333"&gt;Hi &lt;strong&gt;{{to_name}}&lt;/strong&gt;, your ride with SJ Cabs is confirmed.&lt;/p&gt;
+      &lt;!-- Trip Details --&gt;
+      &lt;table width="100%" cellpadding="0" cellspacing="0" style="background:#FFF8E7;border:1px solid #FFE082;border-radius:10px;margin-bottom:20px"&gt;
+        &lt;tr&gt;&lt;td style="padding:16px 20px;border-bottom:1px solid #FFE082"&gt;
+          &lt;p style="margin:0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888"&gt;Route&lt;/p&gt;
+          &lt;p style="margin:4px 0 0;font-size:16px;font-weight:700;color:#07080D"&gt;{{from_loc}} → {{to_loc}}&lt;/p&gt;
+        &lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style="padding:0"&gt;
+          &lt;table width="100%" cellpadding="0" cellspacing="0"&gt;
+            &lt;tr&gt;
+              &lt;td width="50%" style="padding:14px 20px;border-right:1px solid #FFE082"&gt;
+                &lt;p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888"&gt;Service&lt;/p&gt;
+                &lt;p style="margin:4px 0 0;font-size:14px;font-weight:700;color:#333;text-transform:capitalize"&gt;{{booking_type}}&lt;/p&gt;
+              &lt;/td&gt;
+              &lt;td width="50%" style="padding:14px 20px"&gt;
+                &lt;p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888"&gt;Pickup Time&lt;/p&gt;
+                &lt;p style="margin:4px 0 0;font-size:14px;font-weight:700;color:#333"&gt;{{pickup_time}}&lt;/p&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr style="border-top:1px solid #FFE082"&gt;
+              &lt;td width="50%" style="padding:14px 20px;border-right:1px solid #FFE082"&gt;
+                &lt;p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888"&gt;Estimated Fare&lt;/p&gt;
+                &lt;p style="margin:4px 0 0;font-size:22px;font-weight:900;color:#FFB800"&gt;{{fare}}&lt;/p&gt;
+              &lt;/td&gt;
+              &lt;td width="50%" style="padding:14px 20px"&gt;
+                &lt;p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888"&gt;Payment&lt;/p&gt;
+                &lt;p style="margin:4px 0 0;font-size:13px;font-weight:600;color:#333"&gt;{{payment_type}}&lt;/p&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;&lt;/tr&gt;
+      &lt;/table&gt;
+      &lt;!-- Driver Details --&gt;
+      &lt;table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;margin-bottom:20px"&gt;
+        &lt;tr&gt;&lt;td style="padding:14px 20px;border-bottom:1px solid #e9ecef"&gt;
+          &lt;p style="margin:0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888"&gt;Assigned Driver&lt;/p&gt;
+        &lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td style="padding:14px 20px"&gt;
+          &lt;table&gt;&lt;tr&gt;
+            &lt;td style="width:40px;height:40px;background:#FFB800;border-radius:50%;text-align:center;vertical-align:middle;font-size:16px;font-weight:900;color:#07080D;font-family:Arial Black"&gt;{{driver_name}}&lt;/td&gt;
+            &lt;td style="padding-left:12px"&gt;
+              &lt;p style="margin:0;font-size:15px;font-weight:700;color:#333"&gt;{{driver_name}}&lt;/p&gt;
+              &lt;p style="margin:2px 0 0;font-size:13px;color:#666"&gt;{{driver_phone}}&lt;/p&gt;
+              &lt;p style="margin:2px 0 0;font-size:13px;color:#666"&gt;{{vehicle}} · &lt;strong style="font-family:monospace;color:#FFB800"&gt;{{plate}}&lt;/strong&gt;&lt;/p&gt;
+            &lt;/td&gt;
+          &lt;/tr&gt;&lt;/table&gt;
+        &lt;/td&gt;&lt;/tr&gt;
+      &lt;/table&gt;
+      &lt;table width="100%" cellpadding="0" cellspacing="0"&gt;&lt;tr&gt;&lt;td align="center"&gt;
+        &lt;a href="{{portal_link}}" style="display:inline-block;padding:14px 32px;background:#FFB800;color:#07080D;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px"&gt;Track My Ride →&lt;/a&gt;
+      &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+    &lt;/td&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td style="background:#07080D;padding:20px 32px;text-align:center"&gt;
+      &lt;p style="margin:0;font-size:12px;color:#5C5C72"&gt;SJ Cabs · support@innovexc.io · +91 70576 91597&lt;/p&gt;
+    &lt;/td&gt;&lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 3: DRIVER ASSIGNED ═══════════════ -->
+<h2>Template 3: sjcabs_driver_assigned — Driver Assigned</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_driver_assigned</strong> | Subject: <strong>🚖 Your Driver is Assigned — {{booking_id}} | SJ Cabs</strong><br>
+  Variables: to_email, to_name, booking_id, driver_name, driver_phone, vehicle, plate, from_loc, to_loc, pickup_time, portal_link
+</div>
+<pre>
+[Same base layout. Key section:]
+
+&lt;!-- Driver Card --&gt;
+&lt;table width="100%" style="background:#FFF8E7;border:2px solid #FFB800;border-radius:12px;margin:20px 0"&gt;
+  &lt;tr&gt;&lt;td align="center" style="padding:24px"&gt;
+    &lt;p style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#888;margin:0 0 16px"&gt;Your Driver&lt;/p&gt;
+    &lt;p style="font-size:28px;font-weight:900;color:#07080D;margin:0 0 4px"&gt;{{driver_name}}&lt;/p&gt;
+    &lt;p style="font-size:16px;color:#555;margin:0 0 4px"&gt;📞 {{driver_phone}}&lt;/p&gt;
+    &lt;p style="font-size:15px;color:#555;margin:0 0 12px"&gt;{{vehicle}}&lt;/p&gt;
+    &lt;p style="font-size:22px;font-family:monospace;font-weight:900;color:#FFB800;background:#07080D;padding:8px 20px;border-radius:6px;display:inline-block;margin:0"&gt;{{plate}}&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 4: RIDE COMPLETED ═══════════════ -->
+<h2>Template 4: sjcabs_ride_completed — Ride Completed</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_ride_completed</strong> | Subject: <strong>🏁 Ride Completed — {{booking_id}} | SJ Cabs</strong><br>
+  Variables: to_email, to_name, booking_id, from_loc, to_loc, fare, driver_name, payment_status, feedback_link
+</div>
+<pre>
+[Key section — Trip Summary + Feedback CTA:]
+
+&lt;table width="100%" style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;margin:20px 0"&gt;
+  &lt;tr&gt;&lt;td style="padding:16px 20px;border-bottom:1px solid #e9ecef"&gt;
+    &lt;p style="margin:0;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888"&gt;Trip Summary&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td style="padding:16px 20px"&gt;
+    &lt;table width="100%"&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;p style="margin:0;color:#888;font-size:12px"&gt;Route&lt;/p&gt;&lt;p style="margin:3px 0 0;font-weight:700;color:#333"&gt;{{from_loc}} → {{to_loc}}&lt;/p&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;p style="margin:0;color:#888;font-size:12px"&gt;Fare&lt;/p&gt;&lt;p style="margin:3px 0 0;font-size:20px;font-weight:900;color:#FFB800"&gt;{{fare}}&lt;/p&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td colspan="2" style="padding-top:12px"&gt;&lt;p style="margin:0;color:#888;font-size:12px"&gt;Payment&lt;/p&gt;&lt;p style="margin:3px 0 0;font-size:13px;color:#333"&gt;{{payment_status}}&lt;/p&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;!-- Feedback CTA --&gt;
+&lt;table width="100%" style="background:#FFF8E7;border:1px solid #FFE082;border-radius:10px;margin:20px 0;text-align:center"&gt;
+  &lt;tr&gt;&lt;td style="padding:20px"&gt;
+    &lt;p style="margin:0 0 4px;font-size:20px"&gt;⭐⭐⭐⭐⭐&lt;/p&gt;
+    &lt;p style="margin:0 0 12px;font-size:14px;color:#555"&gt;How was your ride with &lt;strong&gt;{{driver_name}}&lt;/strong&gt;?&lt;/p&gt;
+    &lt;a href="{{feedback_link}}" style="display:inline-block;padding:12px 28px;background:#FFB800;color:#07080D;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px"&gt;Rate Your Ride&lt;/a&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 5: PAYMENT CONFIRMED ═══════════════ -->
+<h2>Template 5: sjcabs_payment_confirmed — Payment Confirmed</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_payment_confirmed</strong> | Subject: <strong>✅ Payment Confirmed — {{booking_id}} | SJ Cabs</strong><br>
+  Variables: to_email, to_name, booking_id, amount, date
+</div>
+<pre>
+[Key section:]
+
+&lt;table width="100%" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin:20px 0;text-align:center"&gt;
+  &lt;tr&gt;&lt;td style="padding:28px"&gt;
+    &lt;p style="margin:0 0 4px;font-size:32px"&gt;✅&lt;/p&gt;
+    &lt;p style="margin:0 0 4px;font-size:22px;font-weight:900;color:#15803d"&gt;{{amount}} Received&lt;/p&gt;
+    &lt;p style="margin:0;font-size:13px;color:#166534"&gt;Booking: &lt;strong style="font-family:monospace"&gt;{{booking_id}}&lt;/strong&gt; · {{date}}&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 6: CAPTAIN RECEIVED ═══════════════ -->
+<h2>Template 6: sjcabs_captain_received — Captain Application Received</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_captain_received</strong> | Subject: <strong>📋 Application Received — {{ref_id}} | SJ Cabs Captain Programme</strong><br>
+  Variables: to_email, to_name, ref_id, vehicle, reg_number, status_link
+</div>
+<pre>
+[Key section:]
+
+&lt;table width="100%" style="background:#FFF8E7;border:1px solid #FFE082;border-radius:10px;margin:20px 0"&gt;
+  &lt;tr&gt;&lt;td align="center" style="padding:24px"&gt;
+    &lt;p style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#888;margin:0 0 8px"&gt;Your Reference ID&lt;/p&gt;
+    &lt;p style="font-size:28px;font-family:monospace;font-weight:900;color:#07080D;background:#FFB800;padding:10px 24px;border-radius:8px;display:inline-block;margin:0 0 16px"&gt;{{ref_id}}&lt;/p&gt;
+    &lt;p style="margin:0 0 4px;font-size:14px;color:#555"&gt;Vehicle: &lt;strong&gt;{{vehicle}}&lt;/strong&gt;&lt;/p&gt;
+    &lt;p style="margin:0;font-size:14px;color:#555"&gt;Reg No: &lt;strong style="font-family:monospace;color:#FFB800"&gt;{{reg_number}}&lt;/strong&gt;&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;p style="font-size:14px;color:#555;line-height:1.8"&gt;Our verification team will review your documents within &lt;strong&gt;24–48 hours&lt;/strong&gt;. You will receive email updates at every stage.&lt;/p&gt;
+&lt;table width="100%" cellpadding="0" cellspacing="0"&gt;&lt;tr&gt;&lt;td align="center" style="padding:16px 0"&gt;
+  &lt;a href="{{status_link}}" style="display:inline-block;padding:14px 32px;background:#FFB800;color:#07080D;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px"&gt;Track Application Status →&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 7: CAPTAIN APPROVED ═══════════════ -->
+<h2>Template 7: sjcabs_captain_approved — Captain Approved</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_captain_approved</strong> | Subject: <strong>🎉 Congratulations! You are a SJ Cabs Captain — {{ref_id}}</strong><br>
+  Variables: to_email, to_name, ref_id, driver_portal, login_mobile
+</div>
+<pre>
+[Key section:]
+
+&lt;!-- Congrats Banner --&gt;
+&lt;table width="100%" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #22c55e;border-radius:12px;margin:20px 0;text-align:center"&gt;
+  &lt;tr&gt;&lt;td style="padding:32px"&gt;
+    &lt;p style="margin:0 0 8px;font-size:40px"&gt;🎉&lt;/p&gt;
+    &lt;h2 style="margin:0 0 6px;font-size:24px;color:#15803d"&gt;Welcome to SJ Cabs!&lt;/h2&gt;
+    &lt;p style="margin:0;font-size:14px;color:#166534"&gt;Your application &lt;strong&gt;{{ref_id}}&lt;/strong&gt; has been APPROVED&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;!-- Credentials --&gt;
+&lt;table width="100%" style="background:#07080D;border-radius:10px;margin:20px 0"&gt;
+  &lt;tr&gt;&lt;td style="padding:20px 24px"&gt;
+    &lt;p style="margin:0 0 14px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#5C5C72"&gt;Your Driver Portal Access&lt;/p&gt;
+    &lt;p style="margin:0 0 8px;color:#ccc;font-size:13px"&gt;🌐 Portal URL:&lt;/p&gt;
+    &lt;p style="margin:0 0 16px"&gt;&lt;a href="{{driver_portal}}" style="color:#FFB800;font-size:14px;font-weight:700"&gt;{{driver_portal}}&lt;/a&gt;&lt;/p&gt;
+    &lt;p style="margin:0 0 4px;color:#ccc;font-size:13px"&gt;📱 Login with your mobile number:&lt;/p&gt;
+    &lt;p style="margin:0;font-size:18px;font-family:monospace;font-weight:700;color:#FFB800"&gt;{{login_mobile}}&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;!-- Platform Fee --&gt;
+&lt;table width="100%" style="background:#FFF8E7;border:1px solid #FFE082;border-radius:10px;margin:20px 0"&gt;
+  &lt;tr&gt;&lt;td style="padding:18px 20px"&gt;
+    &lt;p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#92400e"&gt;⚡ Next Step — Activate Your Account&lt;/p&gt;
+    &lt;p style="margin:0;font-size:13px;color:#78350f;line-height:1.7"&gt;Pay the ₹1,000 monthly platform fee to go live and start receiving trips.&lt;br&gt;UPI: &lt;strong&gt;sjcabs@ybl&lt;/strong&gt; · GPay: &lt;strong&gt;+91 70576 91597&lt;/strong&gt;&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;a href="{{driver_portal}}" style="display:block;text-align:center;padding:14px;background:#FFB800;color:#07080D;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;margin-top:8px"&gt;Open Driver Portal →&lt;/a&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 8: CAPTAIN REJECTED ═══════════════ -->
+<h2>Template 8: sjcabs_captain_rejected — Captain Rejected</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_captain_rejected</strong> | Subject: <strong>Application Update — {{ref_id}} | SJ Cabs</strong><br>
+  Variables: to_email, to_name, ref_id, rejection_reason, reapply_link, status_link
+</div>
+<pre>
+[Key section:]
+
+&lt;table width="100%" style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;margin:20px 0"&gt;
+  &lt;tr&gt;&lt;td style="padding:20px 24px"&gt;
+    &lt;p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#991b1b"&gt;⚠ Reason for Rejection&lt;/p&gt;
+    &lt;p style="margin:0;font-size:14px;color:#7f1d1d;line-height:1.7"&gt;{{rejection_reason}}&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;p style="font-size:13px;color:#555;line-height:1.7"&gt;You are welcome to address the above issues and re-apply. Our team is happy to assist: &lt;a href="mailto:support@innovexc.io" style="color:#FFB800"&gt;support@innovexc.io&lt;/a&gt;&lt;/p&gt;
+&lt;a href="{{reapply_link}}" style="display:block;text-align:center;padding:14px;background:#07080D;color:#FFB800;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px;border:2px solid #FFB800;margin-top:8px"&gt;Re-Apply Now →&lt;/a&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 9: DRIVER NEW TRIP ═══════════════ -->
+<h2>Template 9: sjcabs_driver_new_trip — New Trip for Driver</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_driver_new_trip</strong> | Subject: <strong>🔔 New Trip Assigned — {{booking_id}} | SJ Cabs</strong><br>
+  Variables: to_email, to_name, booking_id, customer_name, customer_phone, from_loc, to_loc, pickup_time, fare, payment_note, driver_app
+</div>
+<pre>
+[Key section:]
+
+&lt;table width="100%" style="background:#07080D;border-radius:10px;margin:20px 0"&gt;
+  &lt;tr&gt;&lt;td style="padding:20px 24px"&gt;
+    &lt;p style="margin:0 0 16px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#5C5C72"&gt;Trip Details&lt;/p&gt;
+    &lt;table width="100%"&gt;
+      &lt;tr&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#888;font-size:12px;width:120px"&gt;Customer&lt;/td&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#fff;font-weight:600"&gt;{{customer_name}}&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#888;font-size:12px"&gt;Mobile&lt;/td&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#FFB800;font-family:monospace;font-weight:700"&gt;{{customer_phone}}&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#888;font-size:12px"&gt;Pickup&lt;/td&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#fff;font-weight:600"&gt;{{from_loc}}&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#888;font-size:12px"&gt;Drop&lt;/td&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#fff;font-weight:600"&gt;{{to_loc}}&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#888;font-size:12px"&gt;Time&lt;/td&gt;&lt;td style="padding:6px 0;border-bottom:1px solid #333;color:#fff"&gt;{{pickup_time}}&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td style="padding:6px 0;color:#888;font-size:12px"&gt;Fare&lt;/td&gt;&lt;td style="padding:6px 0;color:#FFB800;font-size:20px;font-weight:900"&gt;{{fare}}&lt;/td&gt;&lt;/tr&gt;
+    &lt;/table&gt;
+    &lt;p style="margin:16px 0 0;font-size:13px;color:#fbbf24;background:rgba(251,191,36,0.1);padding:10px 14px;border-radius:6px;border-left:3px solid #fbbf24"&gt;💳 {{payment_note}}&lt;/p&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;a href="{{driver_app}}" style="display:block;text-align:center;padding:14px;background:#FFB800;color:#07080D;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px"&gt;Open Driver App →&lt;/a&gt;
+</pre>
+
+<!-- ═══════════════ TEMPLATE 10: ADMIN ALERTS ═══════════════ -->
+<h2>Template 10: sjcabs_admin_new_booking — Admin: New Booking Alert</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_admin_new_booking</strong> | Subject: <strong>🆕 New Booking — {{booking_id}} | SJ Cabs Admin</strong><br>
+  Variables: to_email, to_name, booking_id, customer_name, from_loc, to_loc, fare, booking_type, admin_link
+</div>
+
+<h2>Template 11: sjcabs_admin_new_captain — Admin: New Captain Alert</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_admin_new_captain</strong> | Subject: <strong>🚗 New Captain Registration — {{ref_id}} | SJ Cabs Admin</strong><br>
+  Variables: to_email, to_name, captain_name, ref_id, vehicle, reg_number, mobile, admin_link
+</div>
+
+<h2>Template 12: sjcabs_admin_payment — Admin: Payment Received Alert</h2>
+<div class="meta">
+  Template ID: <strong>sjcabs_admin_payment</strong> | Subject: <strong>💰 Payment Notified — {{booking_id}} | SJ Cabs Admin</strong><br>
+  Variables: to_email, to_name, booking_id, customer_name, amount, payment_type, admin_link
+</div>
+
+<hr>
+<div style="background:#1a2a1a;border:1px solid #22c55e;border-radius:10px;padding:20px;margin-top:40px">
+  <h3 style="color:#4ade80;margin-top:0">✅ Summary — All 12 Templates</h3>
+  <table style="width:100%;font-size:13px;color:#ccc;border-collapse:collapse">
+    <tr style="border-bottom:1px solid #333"><th style="text-align:left;padding:8px;color:#888">#</th><th style="text-align:left;padding:8px;color:#888">Template ID</th><th style="text-align:left;padding:8px;color:#888">Trigger</th><th style="text-align:left;padding:8px;color:#888">Recipient</th></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">1</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_otp</td><td style="padding:8px">Login attempt</td><td style="padding:8px">Customer / Driver / Captain</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">2</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_booking_confirmed</td><td style="padding:8px">Booking submitted</td><td style="padding:8px">Customer</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">3</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_driver_assigned</td><td style="padding:8px">Driver assigned</td><td style="padding:8px">Customer</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">4</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_driver_on_way</td><td style="padding:8px">Driver marks "On my way"</td><td style="padding:8px">Customer</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">5</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_ride_completed</td><td style="padding:8px">Driver marks complete</td><td style="padding:8px">Customer</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">6</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_payment_confirmed</td><td style="padding:8px">Admin confirms payment</td><td style="padding:8px">Customer</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">7</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_booking_cancelled</td><td style="padding:8px">Booking cancelled</td><td style="padding:8px">Customer</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">8</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_driver_new_trip</td><td style="padding:8px">Booking assigned</td><td style="padding:8px">Driver</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">9</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_captain_received</td><td style="padding:8px">Form submitted</td><td style="padding:8px">Captain</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">10</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_captain_approved</td><td style="padding:8px">Admin approves</td><td style="padding:8px">Captain</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">11</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_captain_rejected</td><td style="padding:8px">Admin rejects</td><td style="padding:8px">Captain</td></tr>
+    <tr style="border-bottom:1px solid #222"><td style="padding:8px">12</td><td style="padding:8px;font-family:monospace;color:#FFB800">sjcabs_admin_new_booking</td><td style="padding:8px">Any new booking</td><td style="padding:8px">Admin (ops team)</td></tr>
+  </table>
+</div>
+
+</body>
+</html>
