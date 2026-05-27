@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/sjcabs.html" },
+    { "source": "/customer", "destination": "/login.html" },
+    { "source": "/driver", "destination": "/driver.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/captain", "destination": "/captain.html" },
+    { "source": "/captain-status", "destination": "/captain-status.html" }
+  ]
+}
