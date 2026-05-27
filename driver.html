@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SJ Cabs — Driver Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#FFB800;--gold2:#FF7A00;--dark:#07080D;--card:#0D0F18;--card2:#111420;
+  --border:rgba(255,184,0,.15);--bw:rgba(255,255,255,.07);--text:#ECEAE2;
+  --muted:#5C5C72;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--orange:#f97316;
+}
+html{scroll-behavior:smooth}
+body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--dark)}::-webkit-scrollbar-thumb{background:rgba(255,184,0,.25);border-radius:3px}
+
+/* PAGE SYSTEM */
+.pg{display:none;min-height:100vh}
+.pg.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.pg.active{animation:fadeIn .3s ease}
+
+/* ── LOGIN PAGE ── */
+.login-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 40%,#0e1120 0%,#06070d 100%)}
+.login-card{background:rgba(13,15,24,.98);border:1px solid var(--border);border-radius:22px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.7)}
+.lc-top{padding:36px 36px 24px;text-align:center;border-bottom:1px solid var(--bw)}
+.lc-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.25);border-radius:100px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.lc-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:6px}
+.lc-sub{color:var(--muted);font-size:13px;line-height:1.6}
+.lc-body{padding:28px 36px 36px;display:flex;flex-direction:column;gap:16px}
+.lf label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.lf input,.lf select{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:13px 15px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:all .2s;-webkit-appearance:none}
+.lf input:focus,.lf select:focus{border-color:rgba(255,184,0,.5);box-shadow:0 0 0 3px rgba(255,184,0,.07);background:rgba(255,184,0,.03)}
+.lf input::placeholder{color:rgba(255,255,255,.2)}
+.lf select option{background:#0d0f18;color:#fff}
+.otp-row{display:flex;gap:10px}
+.otp-row input{flex:1;text-align:center;font-size:22px;font-weight:800;letter-spacing:4px;padding:13px 5px}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:11px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,184,0,.35)}
+.lerr{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;display:none}
+.lerr.show{display:block}
+.lhint{font-size:12px;color:var(--muted);text-align:center}
+.lhint strong{color:var(--gold)}
+.ldots{display:flex;justify-content:center;gap:6px}
+.ldot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.14);transition:all .3s}
+.ldot.active{background:var(--gold);width:22px;border-radius:4px}
+.ldot.done{background:var(--green)}
+.back-link{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;display:block;margin:0 auto;transition:color .2s}
+.back-link:hover{color:#fff}
+
+/* ── NAV BAR ── */
+.dnav{position:fixed;top:0;left:0;right:0;z-index:900;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,8,13,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+@media(min-width:768px){.dnav{padding:0 32px}}
+.dnav-logo{text-decoration:none;display:flex;align-items:center;gap:8px}
+.dnav-logo svg{height:26px;width:auto}
+.dnav-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:3px 8px;background:rgba(255,255,255,.05);border-radius:100px}
+.dnav-r{display:flex;align-items:center;gap:10px}
+.duty-toggle{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:100px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.duty-toggle.on{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.duty-toggle.off{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.duty-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.duty-toggle.off .duty-dot{animation:none;opacity:.6}
+.nav-av-btn{width:34px;height:34px;background:var(--gold);border-radius:50%;display:grid;place-items:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#000;cursor:pointer;border:none;transition:transform .2s}
+.nav-av-btn:hover{transform:scale(1.08)}
+.nav-logout-btn{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.nav-logout-btn:hover{background:rgba(239,68,68,.2)}
+
+/* ── DASHBOARD ── */
+.dash-wrap{padding:80px 20px 80px;max-width:900px;margin:0 auto}
+@media(min-width:768px){.dash-wrap{padding:80px 32px 80px}}
+
+/* greeting */
+.greet-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.greet-small{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.greet-name{font-family:'Syne',sans-serif;font-size:clamp(20px,4vw,30px);font-weight:800}
+.greet-name span{color:var(--gold)}
+.greet-cab{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--card);border:1px solid var(--bw);border-radius:12px;font-size:13px}
+.greet-cab-reg{font-family:monospace;color:var(--gold);font-weight:700;font-size:14px;letter-spacing:1px}
+
+/* stat cards */
+.stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:28px}
+@media(min-width:560px){.stat-row{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:18px 16px;position:relative;overflow:hidden;transition:border-color .2s}
+.stat-card:hover{border-color:rgba(255,184,0,.25)}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.stat-card:hover::after{transform:scaleX(1)}
+.sc-icon{font-size:20px;margin-bottom:10px}
+.sc-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--gold);line-height:1}
+.sc-lbl{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.5px}
+
+/* section headers */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+.sec-hdr-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.sec-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.sec-badge.active{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.sec-badge.pending{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+
+/* booking cards */
+.bcard{background:var(--card);border:1px solid var(--bw);border-radius:16px;overflow:hidden;margin-bottom:12px;transition:all .25s;cursor:pointer}
+.bcard:hover{border-color:rgba(255,184,0,.25);box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.bc-header{padding:16px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid var(--bw)}
+.bc-id{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.bc-route{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;line-height:1.2}
+.bc-route .arr{color:var(--gold);margin:0 5px}
+.bc-meta{display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap}
+.bc-time{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.sp-new{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.sp-accepted{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.sp-otw{background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.2)}
+.sp-inprogress{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.sp-completed{background:rgba(100,116,139,.1);color:#94a3b8;border:1px solid rgba(100,116,139,.2)}
+.sp-cancelled{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.sdot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.sp-new .sdot,.sp-inprogress .sdot{animation:blink 1.5s infinite}
+.bc-fare{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--gold);white-space:nowrap}
+.bc-body{padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.bc-info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(min-width:500px){.bc-info-row{grid-template-columns:repeat(3,1fr)}}
+.bc-info{background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:10px 12px}
+.bc-info-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.bc-info-val{font-size:13px;font-weight:600}
+.bc-info-val.gold{color:var(--gold)}
+.bc-info-val.green{color:var(--green)}
+/* Customer contact row */
+.bc-cust{display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.12);border-radius:10px;flex-wrap:wrap;gap:8px}
+.bc-cust-info{display:flex;align-items:center;gap:10px}
+.bc-cust-av{width:36px;height:36px;background:var(--gold);border-radius:50%;display:grid;place-items:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#000;flex-shrink:0}
+.bc-cust-name{font-weight:700;font-size:14px;margin-bottom:2px}
+.bc-cust-num{font-size:12px;color:var(--muted)}
+.bc-cust-actions{display:flex;gap:8px}
+.act-btn{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);cursor:pointer;transition:all .2s;text-decoration:none;font-size:14px}
+.act-btn:hover{background:rgba(255,184,0,.15);border-color:rgba(255,184,0,.35)}
+/* Action buttons row */
+.bc-actions{padding:14px 18px;background:var(--card2);border-top:1px solid var(--bw);display:flex;gap:10px;flex-wrap:wrap}
+.ride-btn{flex:1;padding:12px 16px;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;border:none;min-width:120px}
+.ride-btn.accept{background:var(--gold);color:#000}
+.ride-btn.accept:hover{background:var(--gold2);transform:translateY(-2px)}
+.ride-btn.start{background:rgba(249,115,22,.2);color:#fb923c;border:1px solid rgba(249,115,22,.3)}
+.ride-btn.start:hover{background:rgba(249,115,22,.35)}
+.ride-btn.pickup{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+.ride-btn.pickup:hover{background:rgba(34,197,94,.3)}
+.ride-btn.complete{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+.ride-btn.complete:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(34,197,94,.4)}
+.ride-btn.cancel{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.ride-btn.cancel:hover{background:rgba(239,68,68,.2)}
+
+/* progress steps */
+.ride-progress{padding:14px 18px 16px;border-top:1px solid var(--bw)}
+.rp-steps{display:flex;align-items:center}
+.rp-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.rp-circle{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;transition:all .3s;border:2px solid rgba(255,255,255,.12);color:var(--muted);background:var(--card);position:relative;z-index:1}
+.rp-circle.done{background:var(--green);border-color:var(--green);color:#fff}
+.rp-circle.active{background:var(--gold);border-color:var(--gold);color:#000;box-shadow:0 0 12px rgba(255,184,0,.4)}
+.rp-label{font-size:9px;color:var(--muted);text-align:center;line-height:1.3;max-width:60px}
+.rp-label.done{color:var(--green)}
+.rp-label.active{color:var(--gold)}
+.rp-line{flex:1;height:2px;background:rgba(255,255,255,.08);margin:0 -1px;position:relative;top:-16px;z-index:0}
+.rp-line.done{background:var(--green)}
+
+/* TABS */
+.tab-bar{display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,.03);border-radius:12px;padding:4px;width:fit-content}
+.tab-btn{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s;border:none;background:none;font-family:'DM Sans',sans-serif}
+.tab-btn.active{background:var(--card2);color:var(--gold);border:1px solid rgba(255,184,0,.2)}
+
+/* empty state */
+.empty-state{text-align:center;padding:56px 24px}
+.es-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.es-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;opacity:.5;margin-bottom:8px}
+.es-sub{color:var(--muted);font-size:13px;line-height:1.6}
+
+/* earnings section */
+.earn-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:28px}
+@media(min-width:500px){.earn-grid{grid-template-columns:repeat(3,1fr)}}
+.earn-card{background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:20px;text-align:center}
+.earn-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--gold);margin-bottom:4px}
+.earn-lbl{font-size:12px;color:var(--muted)}
+
+/* notification toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;background:var(--card);border:1px solid rgba(255,184,0,.3);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:800;background:rgba(10,12,22,.97);border-top:1px solid var(--bw);display:flex;padding:8px 0 12px}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 0;font-size:10px;font-weight:600;color:var(--muted);transition:color .2s;border:none;background:none;font-family:'DM Sans',sans-serif}
+.bn-item.active{color:var(--gold)}
+.bn-icon{font-size:20px;line-height:1}
+.bn-badge{position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:var(--red);border-radius:50%;font-size:8px;font-weight:800;color:#fff;display:grid;place-items:center}
+.bn-icon-wrap{position:relative;display:inline-block}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════
+     LOGIN PAGE
+═══════════════════════════════ -->
+<div class="pg active" id="pgLogin">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="lc-top">
+        <div class="lc-badge">🧑‍✈️ Driver Portal</div>
+        <div class="lc-title">Driver Sign In</div>
+        <div class="lc-sub">Use your registered mobile number to sign in to the SJ Cabs Driver App.</div>
+      </div>
+      <!-- Step 1 -->
+      <div class="lc-body" id="dStep1">
+        <div class="ldots"><div class="ldot active"></div><div class="ldot"></div></div>
+        <div class="lf">
+          <label>Your Mobile Number</label>
+          <input type="tel" id="dPhone" placeholder="Enter your 10-digit mobile number" maxlength="15" autocomplete="off">
+        </div>
+        <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--muted);line-height:1.7">
+          📱 <strong style="color:var(--text)">Registered drivers:</strong><br>
+          Suresh Patil — <span style="color:var(--gold);font-family:monospace">9823456789</span><br>
+          Rajesh Kumbhar — <span style="color:var(--gold);font-family:monospace">9765432109</span><br>
+          Vijay More — <span style="color:var(--gold);font-family:monospace">9543210987</span>
+        </div>
+        <div class="lerr" id="dErr1"></div>
+        <button class="login-btn" onclick="dSendOTP()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Send OTP via WhatsApp
+        </button>
+        <div class="lhint">Only registered SJ Cabs drivers can sign in.</div>
+        <div style="text-align:center;margin-top:8px"><a href="sjcabs.html" style="color:var(--muted);font-size:12px;text-decoration:none">← Back to main website</a></div>
+      </div>
+      <!-- Step 2 OTP -->
+      <div class="lc-body" id="dStep2" style="display:none">
+        <div class="ldots"><div class="ldot done"></div><div class="ldot active"></div></div>
+        <div class="lhint">OTP sent to <strong id="dOtpTo"></strong><br>Demo OTP: <strong>1 2 3 4</strong></div>
+        <div class="lf">
+          <label>Enter 4-digit OTP</label>
+          <div class="otp-row">
+            <input type="text" id="do1" maxlength="1" inputmode="numeric" oninput="dm(this,'do2')" onkeydown="db(event,'',this)">
+            <input type="text" id="do2" maxlength="1" inputmode="numeric" oninput="dm(this,'do3')" onkeydown="db(event,'do1',this)">
+            <input type="text" id="do3" maxlength="1" inputmode="numeric" oninput="dm(this,'do4')" onkeydown="db(event,'do2',this)">
+            <input type="text" id="do4" maxlength="1" inputmode="numeric" oninput="dm(this,'')" onkeydown="db(event,'do3',this)">
+          </div>
+        </div>
+        <div class="lerr" id="dErr2"></div>
+        <button class="login-btn" onclick="dVerify()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Verify & Enter Portal
+        </button>
+        <div style="text-align:center;font-size:12px;color:var(--muted)">Didn't get it? <span style="color:var(--gold);cursor:pointer" onclick="dResend()">Resend OTP</span></div>
+        <button class="back-link" onclick="dBack()">← Change number</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     MAIN DRIVER APP
+═══════════════════════════════ -->
+<div class="pg" id="pgApp">
+  <!-- NAV -->
+  <nav class="dnav" id="dNav">
+    <a href="sjcabs.html" class="dnav-logo">
+      <svg viewBox="0 0 600 120" aria-label="SJ Cabs"><text x="300" y="92" text-anchor="middle" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-size="88" font-weight="900" fill="#FFB800" letter-spacing="-2">SJ CABS</text></svg>
+      <span class="dnav-tag">Driver Portal</span>
+    </a>
+    <div class="dnav-r">
+      <button class="duty-toggle on" id="dutyBtn" onclick="toggleDuty()">
+        <span class="duty-dot"></span><span id="dutyTxt">On Duty</span>
+      </button>
+      <div class="nav-av-btn" id="dNavAv">S</div>
+      <button class="nav-logout-btn" onclick="dLogout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- DASHBOARD TAB -->
+  <div class="dash-wrap" id="tabDash" style="display:block">
+    <div class="greet-row">
+      <div>
+        <div class="greet-small">Good day,</div>
+        <div class="greet-name">Hello, <span id="dGreetName">Suresh</span> 👋</div>
+      </div>
+      <div class="greet-cab">
+        <span>🚖</span>
+        <div>
+          <div style="font-size:11px;color:var(--muted)">Your Cab</div>
+          <div class="greet-cab-reg" id="dCabReg">MH12ZE7415</div>
+          <div style="font-size:11px;color:var(--muted)" id="dCabModel">Hyundai Aura S CNG</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat-card"><div class="sc-icon">📋</div><div class="sc-val" id="sTotalToday">0</div><div class="sc-lbl">Today's Bookings</div></div>
+      <div class="stat-card"><div class="sc-icon">✅</div><div class="sc-val" id="sCompleted">0</div><div class="sc-lbl">Completed</div></div>
+      <div class="stat-card"><div class="sc-icon">⏳</div><div class="sc-val" id="sPending">0</div><div class="sc-lbl">Pending</div></div>
+      <div class="stat-card"><div class="sc-icon">💰</div><div class="sc-val" id="sEarnings">₹0</div><div class="sc-lbl">Today's Earnings</div></div>
+    </div>
+
+    <!-- Active booking banner -->
+    <div id="activeBanner" style="display:none;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:14px;padding:16px 18px;margin-bottom:20px;display:none">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4ade80;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#4ade80;animation:blink 1.5s infinite;display:inline-block"></span>RIDE IN PROGRESS</div>
+      <div id="activeBannerContent"></div>
+    </div>
+
+    <!-- Today's bookings -->
+    <div class="sec-hdr">
+      <div class="sec-hdr-title">Today's Bookings</div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="filterBookings('all',this)">All</button>
+        <button class="tab-btn" onclick="filterBookings('new',this)">New</button>
+        <button class="tab-btn" onclick="filterBookings('active',this)">Active</button>
+        <button class="tab-btn" onclick="filterBookings('done',this)">Done</button>
+      </div>
+    </div>
+    <div id="bookingCards">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="dash-wrap" id="tabHistory" style="display:none">
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">Ride History</div>
+      <div style="color:var(--muted);font-size:13px">All your completed trips</div>
+    </div>
+    <div id="historyCards"></div>
+  </div>
+
+  <!-- EARNINGS TAB -->
+  <div class="dash-wrap" id="tabEarnings" style="display:none">
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">Earnings</div>
+      <div style="color:var(--muted);font-size:13px">Your trip earnings summary</div>
+    </div>
+    <div class="earn-grid">
+      <div class="earn-card"><div class="earn-val" id="eTodayAmt">₹0</div><div class="earn-lbl">Today</div></div>
+      <div class="earn-card"><div class="earn-val" id="eWeekAmt">₹0</div><div class="earn-lbl">This Week</div></div>
+      <div class="earn-card"><div class="earn-val" id="eMonthAmt">₹0</div><div class="earn-lbl">This Month</div></div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:20px;margin-bottom:12px">
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:16px">Recent Payouts</div>
+      <div id="payoutList"></div>
+    </div>
+    <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:12px;padding:16px;font-size:13px;color:var(--muted);line-height:1.7">
+      💡 Earnings are collected directly from the customer. SJ Cabs charges a 10% platform fee on each completed trip. Please settle dues weekly with the SJ Cabs office.
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div class="dash-wrap" id="tabProfile" style="display:none">
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">My Profile</div>
+      <div style="color:var(--muted);font-size:13px">Your driver account details</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--bw);border-radius:16px;padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+        <div id="profAvatar" style="width:64px;height:64px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:grid;place-items:center;font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#000;flex-shrink:0">S</div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800" id="profName">Suresh Patil</div>
+          <div style="font-size:13px;color:var(--muted)" id="profMobile">+91 98234 56789</div>
+          <div style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:#4ade80">✓ Verified Driver</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Cab Model</div>
+          <div style="font-weight:600;font-size:14px" id="profCab">Hyundai Aura S CNG</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Registration</div>
+          <div style="font-weight:700;font-size:14px;font-family:monospace;color:var(--gold)" id="profReg">MH12ZE7415</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Driving License</div>
+          <div style="font-weight:600;font-size:13px" id="profLicense">MH12-2019-0045678</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Rating</div>
+          <div style="font-weight:700;font-size:18px;color:var(--gold)" id="profRating">4.8 ⭐</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:18px">
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:14px">Quick Links</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <a href="tel:7057691597" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;text-decoration:none;color:var(--text);font-size:14px;font-weight:500;transition:all .2s">📞 Call SJ Cabs Support — +91 70576 91597</a>
+        <a href="https://wa.me/917057691597" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.2);border-radius:10px;text-decoration:none;color:#4ade80;font-size:14px;font-weight:500">💬 WhatsApp SJ Cabs Office</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="bn-item active" id="bnDash" onclick="switchTab('Dash')">
+      <div class="bn-icon-wrap"><span class="bn-icon">📋</span><span class="bn-badge" id="bnBadge" style="display:none">0</span></div>
+      <span>Bookings</span>
+    </button>
+    <button class="bn-item" id="bnHistory" onclick="switchTab('History')">
+      <span class="bn-icon">🕐</span><span>History</span>
+    </button>
+    <button class="bn-item" id="bnEarnings" onclick="switchTab('Earnings')">
+      <span class="bn-icon">💰</span><span>Earnings</span>
+    </button>
+    <button class="bn-item" id="bnProfile" onclick="switchTab('Profile')">
+      <span class="bn-icon">👤</span><span>Profile</span>
+    </button>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════
+   DRIVER DATA
+════════════════════════════════════ */
+const DRIVERS = {
+  'SP': {name:'Suresh Patil',   mobile:'+91 98234 56789', raw:'9823456789', cab:'Hyundai Aura S CNG',reg:'MH12ZE7415',license:'MH12-2019-0045678',rating:'4.8',init:'SP'},
+  'RK': {name:'Rajesh Kumbhar', mobile:'+91 97654 32109', raw:'9765432109', cab:'Hyundai Aura S CNG',reg:'MH12ZE7420',license:'MH14-2021-0012345',rating:'4.9',init:'RK'},
+  'VM': {name:'Vijay More',     mobile:'+91 95432 10987', raw:'9543210987', cab:'Hyundai Aura S CNG',reg:'MH12ZE7421',license:'MH15-2018-0098765',rating:'4.7',init:'VM'},
+};
+
+// Match by last 10 digits — works with any format the user types
+function findDriver(phone) {
+  const digits = phone.replace(/\D/g,'');
+  const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+  for(const d of Object.values(DRIVERS)) {
+    if(d.raw === last10) return d;
+  }
+  return null;
+}
+
+let currentDriver = null;
+let onDuty = true;
+let currentFilter = 'all';
+
+/* ════════════════════════════════════
+   DEMO BOOKINGS (seeded if localStorage empty)
+════════════════════════════════════ */
+function seedDemoBookings() {
+  const existing = JSON.parse(localStorage.getItem('sjBookings')||'[]');
+  if(existing.length > 0) return; // Don't overwrite real bookings
+  const now = new Date();
+  const fmt = (d) => d.toISOString();
+  const demos = [
+    {id:'SJC20250526-001',type:'oneway',from:'Magarpatta',to:'Pune Airport',fare:620,status:'new',
+     driver:{name:'Suresh Patil',mobile:'+91 98234 56789',cab:'Hyundai Aura S CNG',reg:'MH12ZE7415'},
+     customer:{name:'Aditya Kulkarni',mobile:'+91 98765 43210'},
+     pickup:fmt(new Date(now.getTime()+30*60000)),createdAt:fmt(now),userId:'demo'},
+    {id:'SJC20250526-002',type:'outstation',from:'Hadapsar',to:'Mumbai — Bandra',fare:2800,status:'accepted',
+     driver:{name:'Rajesh Kumbhar',mobile:'+91 97654 32109',cab:'Hyundai Aura S CNG',reg:'MH12ZE7420'},
+     customer:{name:'Priya Deshmukh',mobile:'+91 97654 32100'},
+     pickup:fmt(new Date(now.getTime()+90*60000)),createdAt:fmt(now),userId:'demo'},
+    {id:'SJC20250526-003',type:'hourly',from:'Hinjewadi Phase 2',to:'Multiple Locations',fare:1200,status:'completed',
+     driver:{name:'Vijay More',mobile:'+91 95432 10987',cab:'Hyundai Aura S CNG',reg:'MH12ZE7421'},
+     customer:{name:'Rohit Mane',mobile:'+91 99887 76655'},
+     pickup:fmt(new Date(now.getTime()-3*3600000)),createdAt:fmt(now),userId:'demo'},
+    {id:'SJC20250526-004',type:'oneway',from:'Koregaon Park',to:'Nashik',fare:2930,status:'inprogress',
+     driver:{name:'Suresh Patil',mobile:'+91 98234 56789',cab:'Hyundai Aura S CNG',reg:'MH12ZE7415'},
+     customer:{name:'Sneha Sharma',mobile:'+91 91234 56789'},
+     pickup:fmt(new Date(now.getTime()-45*60000)),createdAt:fmt(now),userId:'demo'},
+  ];
+  localStorage.setItem('sjBookings', JSON.stringify(demos));
+}
+
+/* ════════════════════════════════════
+   LOGIN FLOW
+════════════════════════════════════ */
+function dFmt(el){} // no-op — removed formatter
+
+function findDriver(phone) {
+  // Strip everything except digits
+  const digits = phone.replace(/\D/g,'');
+  // Accept last 10 digits (handles +91, 0, 91 prefix etc.)
+  const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+  for(const d of Object.values(DRIVERS)) {
+    if(d.raw === last10) return d;
+  }
+  return null;
+}
+
+function dSendOTP(){
+  const raw = document.getElementById('dPhone').value.trim();
+  const err = document.getElementById('dErr1');
+  err.classList.remove('show');
+
+  if(!raw){ err.textContent='Please enter your mobile number.'; err.classList.add('show'); return; }
+
+  const digits = raw.replace(/\D/g,'');
+  const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+
+  if(last10.length < 10){ err.textContent='Please enter a valid 10-digit mobile number.'; err.classList.add('show'); return; }
+
+  const driver = findDriver(raw);
+  if(!driver){ err.textContent='This number is not registered as an SJ Cabs driver. Please contact the office at +91 70576 91597.'; err.classList.add('show'); return; }
+
+  err.classList.remove('show');
+  document.getElementById('dOtpTo').textContent = driver.mobile;
+  document.getElementById('dStep1').style.display='none';
+  document.getElementById('dStep2').style.display='flex';
+  document.getElementById('dStep2').style.flexDirection='column';
+  document.getElementById('dStep2').style.gap='16px';
+  setTimeout(()=>document.getElementById('do1').focus(),100);
+}
+function dm(el,nid){if(el.value&&nid)document.getElementById(nid).focus();}
+function db(e,pid,el){if(e.key==='Backspace'&&!el.value&&pid)document.getElementById(pid).focus();}
+function dResend(){['do1','do2','do3','do4'].forEach(id=>document.getElementById(id).value='');document.getElementById('do1').focus();}
+function dBack(){document.getElementById('dStep2').style.display='none';document.getElementById('dStep1').style.display='flex';document.getElementById('dStep1').style.flexDirection='column';document.getElementById('dStep1').style.gap='16px';['do1','do2','do3','do4'].forEach(id=>document.getElementById(id).value='');document.getElementById('dErr2').classList.remove('show');}
+function dVerify(){
+  const otp=['do1','do2','do3','do4'].map(id=>document.getElementById(id).value).join('');
+  const err=document.getElementById('dErr2');
+  if(otp!=='1234'){err.textContent='Invalid OTP. Demo OTP is 1234.';err.classList.add('show');return;}
+  err.classList.remove('show');
+  const phone = document.getElementById('dPhone').value;
+  currentDriver = findDriver(phone);
+  seedDemoBookings();
+  enterPortal();
+}
+function enterPortal(){
+  document.getElementById('pgLogin').classList.remove('active');
+  document.getElementById('pgApp').classList.add('active');
+  // Set driver info in UI
+  document.getElementById('dGreetName').textContent = currentDriver.name.split(' ')[0];
+  document.getElementById('dCabReg').textContent = currentDriver.reg;
+  document.getElementById('dCabModel').textContent = currentDriver.cab;
+  document.getElementById('dNavAv').textContent = currentDriver.init;
+  document.getElementById('profAvatar').textContent = currentDriver.init;
+  document.getElementById('profName').textContent = currentDriver.name;
+  document.getElementById('profMobile').textContent = currentDriver.mobile;
+  document.getElementById('profCab').textContent = currentDriver.cab;
+  document.getElementById('profReg').textContent = currentDriver.reg;
+  document.getElementById('profLicense').textContent = currentDriver.license;
+  document.getElementById('profRating').textContent = currentDriver.rating+' ⭐';
+  renderDashboard();
+}
+function dLogout(){
+  currentDriver=null;
+  document.getElementById('pgApp').classList.remove('active');
+  document.getElementById('pgLogin').classList.add('active');
+  document.getElementById('dPhone').value='';
+  ['do1','do2','do3','do4'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('dStep2').style.display='none';
+  document.getElementById('dStep1').style.display='flex';
+  document.getElementById('dStep1').style.flexDirection='column';
+  document.getElementById('dStep1').style.gap='16px';
+}
+
+/* ════════════════════════════════════
+   DUTY TOGGLE
+════════════════════════════════════ */
+function toggleDuty(){
+  onDuty=!onDuty;
+  const btn=document.getElementById('dutyBtn');
+  const txt=document.getElementById('dutyTxt');
+  btn.className='duty-toggle '+(onDuty?'on':'off');
+  txt.textContent=onDuty?'On Duty':'Off Duty';
+  showToast(onDuty?'✅ You are now On Duty':'⛔ You are now Off Duty');
+}
+
+/* ════════════════════════════════════
+   TAB SWITCHING
+════════════════════════════════════ */
+function switchTab(tab){
+  ['Dash','History','Earnings','Profile'].forEach(t=>{
+    document.getElementById('tab'+t).style.display=t===tab?'block':'none';
+    document.getElementById('bn'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='History') renderHistory();
+  if(tab==='Earnings') renderEarnings();
+}
+
+/* ════════════════════════════════════
+   GET MY BOOKINGS
+════════════════════════════════════ */
+function getMyBookings(){
+  const all=JSON.parse(localStorage.getItem('sjBookings')||'[]');
+  if(!currentDriver) return [];
+  return all.filter(b=>b.driver&&(b.driver.reg===currentDriver.reg||b.driver.mobile===currentDriver.mobile));
+}
+
+/* ════════════════════════════════════
+   RENDER DASHBOARD
+════════════════════════════════════ */
+function renderDashboard(){
+  const bookings=getMyBookings();
+  const today=bookings.filter(b=>b.status!=='cancelled');
+  const completed=today.filter(b=>b.status==='completed');
+  const pending=today.filter(b=>['new','accepted','otw','inprogress'].includes(b.status));
+  const earnings=completed.reduce((s,b)=>s+(b.fare||0),0);
+  document.getElementById('sTotalToday').textContent=today.length;
+  document.getElementById('sCompleted').textContent=completed.length;
+  document.getElementById('sPending').textContent=pending.length;
+  document.getElementById('sEarnings').textContent='₹'+earnings.toLocaleString();
+
+  // Active ride banner
+  const active=bookings.find(b=>b.status==='inprogress');
+  const activeBanner=document.getElementById('activeBanner');
+  if(active){
+    activeBanner.style.display='block';
+    document.getElementById('activeBannerContent').innerHTML=
+      '<div style="font-weight:700;font-size:14px;margin-bottom:4px">'+active.from+' → '+active.to+'</div>'+
+      '<div style="font-size:12px;color:var(--muted)">Customer: '+(active.customer?active.customer.name:'—')+'</div>';
+  } else {activeBanner.style.display='none';}
+
+  // Badge
+  const newCount=bookings.filter(b=>b.status==='new').length;
+  const badge=document.getElementById('bnBadge');
+  badge.style.display=newCount>0?'grid':'none';
+  badge.textContent=newCount;
+
+  renderBookingCards(bookings, currentFilter);
+}
+
+function filterBookings(f, btn){
+  currentFilter=f;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBookingCards(getMyBookings(), f);
+}
+
+function renderBookingCards(bookings, filter){
+  const container=document.getElementById('bookingCards');
+  let filtered=bookings;
+  if(filter==='new') filtered=bookings.filter(b=>b.status==='new');
+  else if(filter==='active') filtered=bookings.filter(b=>['accepted','otw','inprogress'].includes(b.status));
+  else if(filter==='done') filtered=bookings.filter(b=>['completed','cancelled'].includes(b.status));
+  filtered=filtered.filter(b=>b.status!=='cancelled'||filter==='all');
+
+  if(!filtered.length){
+    container.innerHTML='<div class="empty-state"><div class="es-icon">📭</div><div class="es-title">No bookings here</div><div class="es-sub">New bookings assigned to you will appear here.</div></div>';
+    return;
+  }
+  container.innerHTML=filtered.map(b=>bookingCardHTML(b)).join('');
+}
+
+/* ════════════════════════════════════
+   BOOKING CARD HTML
+════════════════════════════════════ */
+const STATUS_LABELS={new:'New Booking',accepted:'Accepted',otw:'On The Way',inprogress:'In Progress',completed:'Completed',cancelled:'Cancelled'};
+const STATUS_CLASS={new:'sp-new',accepted:'sp-accepted',otw:'sp-otw',inprogress:'sp-inprogress',completed:'sp-completed',cancelled:'sp-cancelled'};
+const RIDE_STEPS=['Accepted','On The Way','Picked Up','Completed'];
+
+function bookingCardHTML(b){
+  const stepIdx={new:-1,accepted:0,otw:1,inprogress:2,completed:3,cancelled:-1}[b.status]||0;
+  const pickupTime=b.pickup?new Date(b.pickup).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+  const custName=b.customer?b.customer.name:'Customer';
+  const custMobile=b.customer?b.customer.mobile:'';
+
+  let actionsHTML='';
+  if(b.status==='new'){
+    actionsHTML=`
+    <div class="bc-actions">
+      <button class="ride-btn accept" onclick="updateStatus('${b.id}','accepted');event.stopPropagation()">✓ Accept Booking</button>
+      <button class="ride-btn cancel" onclick="updateStatus('${b.id}','cancelled');event.stopPropagation()">Decline</button>
+    </div>`;
+  } else if(b.status==='accepted'){
+    actionsHTML=`
+    <div class="bc-actions">
+      <button class="ride-btn start" onclick="updateStatus('${b.id}','otw');event.stopPropagation()">🚗 Start — On My Way</button>
+      <a href="https://wa.me/${custMobile.replace(/\D/g,'')}" target="_blank" class="ride-btn" style="display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;background:rgba(37,211,102,.12);color:#4ade80;border:1px solid rgba(37,211,102,.25);border-radius:10px;padding:12px 16px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800" onclick="event.stopPropagation()">💬 WA Customer</a>
+    </div>`;
+  } else if(b.status==='otw'){
+    actionsHTML=`
+    <div class="bc-actions">
+      <button class="ride-btn pickup" onclick="updateStatus('${b.id}','inprogress');event.stopPropagation()">👤 Customer Picked Up</button>
+    </div>`;
+  } else if(b.status==='inprogress'){
+    actionsHTML=`
+    <div class="bc-actions">
+      <button class="ride-btn complete" onclick="updateStatus('${b.id}','completed');event.stopPropagation()">🏁 Complete Ride</button>
+    </div>`;
+  }
+
+  let progressHTML='';
+  if(!['cancelled','new'].includes(b.status)){
+    progressHTML=`<div class="ride-progress"><div class="rp-steps">`;
+    RIDE_STEPS.forEach((step,i)=>{
+      const done=i<stepIdx;
+      const active=i===stepIdx;
+      progressHTML+=`<div class="rp-step"><div class="rp-circle ${done?'done':active?'active':''}">${done?'✓':i+1}</div><div class="rp-label ${done?'done':active?'active':''}">${step}</div></div>`;
+      if(i<RIDE_STEPS.length-1) progressHTML+=`<div class="rp-line ${done?'done':''}"></div>`;
+    });
+    progressHTML+=`</div></div>`;
+  }
+
+  return `<div class="bcard" onclick="void(0)">
+    <div class="bc-header">
+      <div>
+        <div class="bc-id">${b.id}</div>
+        <div class="bc-route">${b.from}<span class="arr">→</span>${b.to}</div>
+        <div class="bc-meta">
+          <span class="status-pill ${STATUS_CLASS[b.status]||'sp-new'}"><span class="sdot"></span>${STATUS_LABELS[b.status]||b.status}</span>
+          <span class="bc-time">🕐 ${pickupTime}</span>
+        </div>
+      </div>
+      <div class="bc-fare">${b.fare?'₹'+b.fare.toLocaleString():''}</div>
+    </div>
+    <div class="bc-body">
+      <div class="bc-info-row">
+        <div class="bc-info"><div class="bc-info-lbl">Pickup</div><div class="bc-info-val">${b.from}</div></div>
+        <div class="bc-info"><div class="bc-info-lbl">Drop</div><div class="bc-info-val">${b.to}</div></div>
+        <div class="bc-info"><div class="bc-info-lbl">Type</div><div class="bc-info-val" style="text-transform:capitalize">${b.type||'—'}</div></div>
+      </div>
+      <div class="bc-cust">
+        <div class="bc-cust-info">
+          <div class="bc-cust-av">${custName[0]}</div>
+          <div>
+            <div class="bc-cust-name">${custName}</div>
+            <div class="bc-cust-num">${custMobile}</div>
+          </div>
+        </div>
+        <div class="bc-cust-actions">
+          <a href="tel:${custMobile.replace(/\D/g,'')}" class="act-btn" title="Call customer" onclick="event.stopPropagation()">📞</a>
+          <a href="https://wa.me/${custMobile.replace(/\D/g,'')}" class="act-btn" title="WhatsApp customer" target="_blank" onclick="event.stopPropagation()">💬</a>
+        </div>
+      </div>
+    </div>
+    ${progressHTML}
+    ${actionsHTML}
+  </div>`;
+}
+
+/* ════════════════════════════════════
+   UPDATE RIDE STATUS
+════════════════════════════════════ */
+function updateStatus(bookingId, newStatus){
+  const bookings=JSON.parse(localStorage.getItem('sjBookings')||'[]');
+  const idx=bookings.findIndex(b=>b.id===bookingId);
+  if(idx<0) return;
+  bookings[idx].status=newStatus;
+  if(newStatus==='completed') bookings[idx].completedAt=new Date().toISOString();
+  localStorage.setItem('sjBookings',JSON.stringify(bookings));
+  const msgs={accepted:'✅ Booking accepted! Customer notified.',otw:'🚗 On your way! Customer alerted.',inprogress:'👤 Ride started!',completed:'🏁 Ride completed! Great job.',cancelled:'Booking declined.'};
+  showToast(msgs[newStatus]||'Status updated.');
+  // Simulate WhatsApp notification
+  if(newStatus==='accepted'||newStatus==='completed'){
+    const b=bookings[idx];
+    const waMsg=newStatus==='accepted'?
+      `Hi ${b.customer?b.customer.name:'Customer'}! Your SJ Cabs booking ${b.id} has been accepted. Driver ${currentDriver.name} (${currentDriver.mobile}) in ${currentDriver.cab} (${currentDriver.reg}) is on the way.`:
+      `Hi! Your SJ Cabs ride ${b.id} is complete. Thank you for riding with us! ⭐ Please rate your experience.`;
+    console.log('[WhatsApp Notification →]', waMsg);
+  }
+  renderDashboard();
+}
+
+/* ════════════════════════════════════
+   RENDER HISTORY
+════════════════════════════════════ */
+function renderHistory(){
+  const bookings=getMyBookings().filter(b=>b.status==='completed');
+  const container=document.getElementById('historyCards');
+  if(!bookings.length){container.innerHTML='<div class="empty-state"><div class="es-icon">🕐</div><div class="es-title">No completed rides yet</div><div class="es-sub">Your completed trip history will appear here.</div></div>';return;}
+  container.innerHTML=bookings.reverse().map(b=>`
+    <div class="bcard" style="margin-bottom:12px">
+      <div class="bc-header">
+        <div>
+          <div class="bc-id">${b.id}</div>
+          <div class="bc-route">${b.from}<span class="arr">→</span>${b.to}</div>
+          <div class="bc-meta">
+            <span class="status-pill sp-completed"><span class="sdot"></span>Completed</span>
+            <span class="bc-time">🕐 ${b.completedAt?new Date(b.completedAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):new Date(b.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short'})}</span>
+          </div>
+        </div>
+        <div class="bc-fare">${b.fare?'₹'+b.fare.toLocaleString():''}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════
+   RENDER EARNINGS
+════════════════════════════════════ */
+function renderEarnings(){
+  const completed=getMyBookings().filter(b=>b.status==='completed');
+  const now=new Date();
+  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const weekStart=new Date(now);weekStart.setDate(now.getDate()-7);
+
+  const todayE=completed.filter(b=>new Date(b.createdAt)>=todayStart).reduce((s,b)=>s+(b.fare||0),0);
+  const weekE=completed.filter(b=>new Date(b.createdAt)>=weekStart).reduce((s,b)=>s+(b.fare||0),0);
+  const monthE=completed.reduce((s,b)=>s+(b.fare||0),0);
+
+  document.getElementById('eTodayAmt').textContent='₹'+todayE.toLocaleString();
+  document.getElementById('eWeekAmt').textContent='₹'+weekE.toLocaleString();
+  document.getElementById('eMonthAmt').textContent='₹'+monthE.toLocaleString();
+
+  const pl=document.getElementById('payoutList');
+  if(!completed.length){pl.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No completed trips yet</div>';return;}
+  pl.innerHTML=completed.slice().reverse().slice(0,8).map(b=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div>
+        <div style="font-weight:600;font-size:13px">${b.from} → ${b.to}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${new Date(b.createdAt).toLocaleDateString('en-IN')} · ${b.type||'ride'}</div>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--green)">+₹${(b.fare||0).toLocaleString()}</div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ════════════════════════════════════
+   AUTO-REFRESH every 8 seconds
+════════════════════════════════════ */
+setInterval(()=>{
+  if(currentDriver && document.getElementById('tabDash').style.display!=='none'){
+    renderDashboard();
+  }
+},8000);
+</script>
+</body>
+</html>

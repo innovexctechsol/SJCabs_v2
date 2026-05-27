@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SJ Cabs — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#FFB800;--gold2:#FF7A00;--dark:#07080D;--card:#0D0F18;--card2:#111420;
+  --border:rgba(255,184,0,.15);--bw:rgba(255,255,255,.07);--text:#ECEAE2;
+  --muted:#5C5C72;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--orange:#f97316;
+  --sidebar:220px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--dark)}::-webkit-scrollbar-thumb{background:rgba(255,184,0,.25);border-radius:3px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.anim{animation:fadeIn .3s ease}
+
+/* ── LOGIN ── */
+.login-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 40%,#0e1120 0%,#06070d 100%)}
+.login-card{background:rgba(13,15,24,.98);border:1px solid var(--border);border-radius:22px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.7)}
+.lc-top{padding:32px 32px 22px;text-align:center;border-bottom:1px solid var(--bw)}
+.lc-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:100px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f87171;margin-bottom:14px}
+.lc-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:5px}
+.lc-sub{color:var(--muted);font-size:13px}
+.lc-body{padding:24px 32px 32px;display:flex;flex-direction:column;gap:14px}
+.lf label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.lf input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:13px 15px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:all .2s}
+.lf input:focus{border-color:rgba(255,184,0,.5);box-shadow:0 0 0 3px rgba(255,184,0,.07)}
+.lf input::placeholder{color:rgba(255,255,255,.2)}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,184,0,.35)}
+.lerr{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;display:none}
+.lerr.show{display:block}
+
+/* ── LAYOUT ── */
+.admin-layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:#080910;border-right:1px solid var(--bw);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;transition:transform .3s}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}}
+.sb-logo{padding:20px 20px 14px;border-bottom:1px solid var(--bw);display:flex;flex-direction:column;gap:6px}
+.sb-logo svg{height:22px;width:auto}
+.sb-tag{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.sb-nav{flex:1;padding:12px 0;overflow-y:auto}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--muted);transition:all .2s;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;text-align:left;border-left:3px solid transparent}
+.sb-item:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.sb-item.active{color:var(--gold);background:rgba(255,184,0,.06);border-left-color:var(--gold)}
+.sb-icon{font-size:16px;flex-shrink:0}
+.sb-section{padding:6px 20px 4px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-top:8px}
+.sb-bottom{padding:14px 16px;border-top:1px solid var(--bw)}
+.sb-logout{width:100%;padding:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:9px;color:#f87171;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s}
+.sb-logout:hover{background:rgba(239,68,68,.2)}
+
+/* MAIN */
+.admin-main{flex:1;margin-left:var(--sidebar);padding:0;display:flex;flex-direction:column}
+@media(max-width:900px){.admin-main{margin-left:0}}
+
+/* TOP BAR */
+.topbar{height:60px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,9,16,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--bw);position:sticky;top:0;z-index:90;gap:12px}
+.tb-ham{display:none;width:36px;height:36px;background:rgba(255,255,255,.05);border:1px solid var(--bw);border-radius:8px;place-items:center;cursor:pointer;font-size:18px;border:none;color:var(--text)}
+@media(max-width:900px){.tb-ham{display:grid}}
+.tb-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800}
+.tb-right{display:flex;align-items:center;gap:12px}
+.tb-refresh{padding:7px 14px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);border-radius:8px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.tb-refresh:hover{background:rgba(255,184,0,.2)}
+.tb-admin{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:100px}
+.tb-av{width:26px;height:26px;background:#ef4444;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+.tb-name{font-size:12px;font-weight:600;color:#f87171}
+
+/* CONTENT */
+.admin-content{padding:24px 28px;flex:1}
+.section-panel{display:none}
+.section-panel.active{display:block}
+
+/* KPI cards */
+.kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:28px}
+@media(min-width:640px){.kpi-row{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:border-color .2s}
+.kpi:hover{border-color:rgba(255,184,0,.25)}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.kpi:hover::after{transform:scaleX(1)}
+.kpi-icon{font-size:22px;margin-bottom:10px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--gold);line-height:1}
+.kpi-lbl{font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:.5px}
+.kpi-trend{font-size:11px;margin-top:6px}
+.kpi-trend.up{color:var(--green)}
+.kpi-trend.down{color:var(--red)}
+
+/* Filters row */
+.filters-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.filter-select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:9px 13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;-webkit-appearance:none;cursor:pointer;transition:border-color .2s}
+.filter-select:focus{border-color:rgba(255,184,0,.4)}
+.filter-select option{background:#0d0f18;color:#fff}
+.search-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:9px 13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;flex:1;min-width:180px;transition:border-color .2s}
+.search-input:focus{border-color:rgba(255,184,0,.4)}
+.search-input::placeholder{color:rgba(255,255,255,.25)}
+.action-btn{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;border:none}
+.action-btn.primary{background:var(--gold);color:#000}
+.action-btn.primary:hover{background:var(--gold2)}
+.action-btn.ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--bw)}
+.action-btn.ghost:hover{background:rgba(255,255,255,.1)}
+
+/* TABLE */
+.table-wrap{background:var(--card);border:1px solid var(--bw);border-radius:14px;overflow:hidden;overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;min-width:700px}
+.data-table th{background:rgba(255,184,0,.08);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px 16px;text-align:left;border-bottom:1px solid rgba(255,184,0,.15);white-space:nowrap}
+.data-table td{padding:13px 16px;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,184,0,.03)}
+.data-table .mono{font-family:monospace;font-size:12px;color:var(--gold)}
+.td-actions{display:flex;align-items:center;gap:7px}
+.td-btn{padding:5px 11px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s}
+.td-btn.view{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.td-btn.edit{background:rgba(255,184,0,.1);color:var(--gold);border:1px solid rgba(255,184,0,.2)}
+.td-btn.del{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.td-btn:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.sp-new{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.sp-accepted{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.sp-otw{background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.2)}
+.sp-inprogress{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.sp-completed{background:rgba(100,116,139,.1);color:#94a3b8;border:1px solid rgba(100,116,139,.2)}
+.sp-cancelled{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.sp-paid{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.sp-pay-pending{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.sdot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* DRIVER CARDS */
+.driver-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.driver-card{background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:20px;transition:all .25s}
+.driver-card:hover{border-color:rgba(255,184,0,.25)}
+.dc-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.dc-av{width:48px;height:48px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:grid;place-items:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#000;flex-shrink:0}
+.dc-name{font-weight:700;font-size:15px;margin-bottom:3px}
+.dc-mobile{font-size:12px;color:var(--muted)}
+.dc-status{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;margin-top:4px}
+.dc-status.on{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.dc-status.off{background:rgba(100,116,139,.1);color:#94a3b8;border:1px solid rgba(100,116,139,.2)}
+.dc-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dc-info{background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 12px}
+.dc-info-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.dc-info-val{font-size:12.5px;font-weight:600}
+.dc-info-val.reg{font-family:monospace;color:var(--gold);letter-spacing:.5px}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:#0d0f18;border:1px solid rgba(255,184,0,.2);border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.7)}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--bw);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800}
+.modal-close{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.07);border:none;color:var(--muted);font-size:17px;cursor:pointer;display:grid;place-items:center}
+.modal-close:hover{background:rgba(255,255,255,.14);color:#fff}
+.modal-body{padding:20px 24px 24px}
+
+/* new booking form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid .full{grid-column:1/-1}
+.ff label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.ff input,.ff select,.ff textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:11px 13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:all .2s;-webkit-appearance:none}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:rgba(255,184,0,.5);box-shadow:0 0 0 3px rgba(255,184,0,.07)}
+.ff select option{background:#0d0f18}
+
+/* chart area placeholder */
+.chart-placeholder{background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:24px;margin-bottom:24px}
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:12px}
+.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.chart-bar{width:100%;background:linear-gradient(to top,var(--gold2),var(--gold));border-radius:4px 4px 0 0;transition:height .6s ease;min-height:4px}
+.chart-label{font-size:10px;color:var(--muted);text-align:center}
+.chart-val{font-size:11px;color:var(--gold);font-weight:700}
+
+/* toast */
+.toast{position:fixed;top:72px;right:24px;z-index:9999;background:var(--card);border:1px solid rgba(255,184,0,.3);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.6);transform:translateY(-8px)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* empty */
+.empty-state{text-align:center;padding:48px 24px}
+.es-icon{font-size:44px;margin-bottom:14px;opacity:.35}
+.es-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;opacity:.45;margin-bottom:7px}
+.es-sub{color:var(--muted);font-size:13px}
+
+/* RR indicator */
+.rr-indicator{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;margin-bottom:18px;font-size:13px}
+.rr-arrow{color:var(--gold);font-size:16px}
+.rr-name{font-weight:700;color:var(--gold)}
+
+/* ═══════════════════════════════════
+   CAPTAIN VERIFICATION WORKSPACE
+═══════════════════════════════════ */
+/* Full-screen overlay workspace */
+.vws-backdrop{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,0);pointer-events:none;transition:background .3s}
+.vws-backdrop.open{background:rgba(0,0,0,.6);pointer-events:all}
+.vws-panel{position:fixed;top:0;right:0;bottom:0;z-index:8001;width:100%;max-width:960px;background:#09090F;border-left:1px solid rgba(255,184,0,.18);transform:translateX(100%);transition:transform .38s cubic-bezier(.23,1,.32,1);display:flex;flex-direction:column;overflow:hidden}
+.vws-panel.open{transform:translateX(0)}
+@media(max-width:960px){.vws-panel{max-width:100%}}
+
+/* Workspace header */
+.vws-head{padding:16px 24px;background:rgba(8,9,16,.98);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:16px;flex-shrink:0}
+.vws-back{width:34px;height:34px;background:rgba(255,255,255,.07);border:none;color:var(--muted);border-radius:9px;cursor:pointer;display:grid;place-items:center;font-size:16px;transition:all .2s;flex-shrink:0}
+.vws-back:hover{background:rgba(255,255,255,.14);color:#fff}
+.vws-head-info{flex:1;min-width:0}
+.vws-refid{font-family:monospace;font-size:11px;color:var(--gold);margin-bottom:2px}
+.vws-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vws-head-actions{display:flex;gap:8px;flex-shrink:0}
+.vws-btn-approve{padding:9px 20px;background:var(--green);color:#fff;border:none;border-radius:9px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.vws-btn-approve:hover{background:#16a34a;transform:translateY(-1px)}
+.vws-btn-approve:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.vws-btn-reject{padding:9px 18px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.vws-btn-reject:hover{background:rgba(239,68,68,.22)}
+.vws-btn-hold{padding:9px 18px;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.vws-btn-hold:hover{background:rgba(251,191,36,.2)}
+
+/* Verification progress bar */
+.vws-progress{padding:12px 24px;background:rgba(8,9,16,.7);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.vws-progress::-webkit-scrollbar{display:none}
+.vchk{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.vchk.done{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.25)}
+.vchk.fail{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.2)}
+.vchk.active{background:rgba(255,184,0,.12);color:var(--gold);border-color:rgba(255,184,0,.3)}
+.vchk.pending{background:rgba(255,255,255,.04);color:var(--muted);border-color:rgba(255,255,255,.1)}
+.vchk-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* Tab bar */
+.vws-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;overflow-x:auto;scrollbar-width:none;background:rgba(8,9,16,.5)}
+.vws-tabs::-webkit-scrollbar{display:none}
+.vtab{padding:13px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.vtab:hover{color:var(--text)}
+.vtab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.vtab .vtab-badge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:800;margin-left:5px}
+.vtab .vtab-badge.ok{background:rgba(34,197,94,.2);color:#4ade80}
+.vtab .vtab-badge.fail{background:rgba(239,68,68,.2);color:#f87171}
+.vtab .vtab-badge.warn{background:rgba(251,191,36,.2);color:#fbbf24}
+
+/* Workspace body */
+.vws-body{flex:1;overflow-y:auto;padding:24px}
+.vsec{display:none}
+.vsec.active{display:block}
+
+/* Verification check row */
+.vcheck-card{background:var(--card);border:1px solid var(--bw);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.vcheck-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.05)}
+.vcheck-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px}
+.vcheck-status{display:flex;gap:6px}
+.vstatus-btn{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s}
+.vstatus-btn.ok{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.vstatus-btn.ok.active{background:rgba(34,197,94,.3);box-shadow:0 0 10px rgba(34,197,94,.25)}
+.vstatus-btn.fail{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.vstatus-btn.fail.active{background:rgba(239,68,68,.25);box-shadow:0 0 10px rgba(239,68,68,.2)}
+.vstatus-btn.hold{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.vstatus-btn.hold.active{background:rgba(251,191,36,.25)}
+.vcheck-body{padding:16px 18px}
+
+/* Document image viewer */
+.doc-viewer{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.doc-img-wrap{position:relative;border-radius:12px;overflow:hidden;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .2s}
+.doc-img-wrap:hover{border-color:rgba(255,184,0,.4);transform:translateY(-2px)}
+.doc-img-wrap img{width:100%;height:140px;object-fit:cover;display:block}
+.doc-img-label{padding:8px 12px;font-size:11px;font-weight:600;color:var(--muted);display:flex;align-items:center;justify-content:space-between}
+.doc-img-zoom{font-size:14px;opacity:.6;cursor:pointer}
+.doc-placeholder{width:100%;height:140px;background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:12px}
+.doc-placeholder .dp-icon{font-size:28px;opacity:.4}
+
+/* Info grid inside checks */
+.vinfo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.vinfo-item{background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px 14px}
+.vinfo-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.vinfo-val{font-size:13px;font-weight:600}
+.vinfo-val.gold{color:var(--gold)}
+.vinfo-val.green{color:var(--green)}
+.vinfo-val.red{color:var(--red)}
+.vinfo-val.orange{color:var(--orange)}
+.vinfo-val.mono{font-family:monospace;letter-spacing:.5px}
+
+/* Notes / remarks field */
+.vremarks{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;resize:none;min-height:64px;transition:border-color .2s}
+.vremarks:focus{border-color:rgba(255,184,0,.4)}
+.vremarks::placeholder{color:rgba(255,255,255,.2)}
+
+/* Verification stamp */
+.vstamp{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:9px;font-size:12px;font-weight:700}
+.vstamp.approved{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.vstamp.rejected{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.vstamp.pending{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.vstamp.unreviewed{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
+
+/* DL check tool */
+.dl-check-tool{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:16px;margin-bottom:14px}
+.dl-check-title{font-size:12px;font-weight:700;color:#60a5fa;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.dl-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.dl-field label{font-size:10px;color:rgba(148,163,184,.7);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:5px}
+.dl-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.dl-field input:focus{border-color:rgba(59,130,246,.5)}
+.dl-verify-btn{padding:9px 20px;background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:6px}
+.dl-verify-btn:hover{background:rgba(59,130,246,.3)}
+.dl-result{border-radius:10px;padding:14px;margin-top:12px;display:none}
+.dl-result.show{display:block}
+.dl-result.pass{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)}
+.dl-result.fail{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
+
+/* Vehicle inspection checklist */
+.inspection-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.insp-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card2);border:1px solid rgba(255,255,255,.06);border-radius:10px;gap:12px;transition:border-color .2s}
+.insp-item:hover{border-color:rgba(255,184,0,.2)}
+.insp-label{font-size:13px;font-weight:500;flex:1}
+.insp-btns{display:flex;gap:6px;flex-shrink:0}
+.insp-btn{width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;font-size:14px;transition:all .2s;display:grid;place-items:center}
+.insp-btn.ok.active{background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.4)}
+.insp-btn.fail.active{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.4)}
+.insp-btn.na.active{background:rgba(100,116,139,.2);border-color:rgba(100,116,139,.4)}
+
+/* Image lightbox */
+.lightbox{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;padding:20px}
+.lightbox.open{display:flex}
+.lightbox-img{max-width:90vw;max-height:88vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.8);object-fit:contain}
+.lightbox-close{position:absolute;top:16px;right:20px;width:36px;height:36px;background:rgba(255,255,255,.12);border:none;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center}
+.lightbox-label{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:600;color:rgba(255,255,255,.6);background:rgba(0,0,0,.6);padding:6px 14px;border-radius:100px}
+
+/* Overall score bar */
+.score-bar{background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:18px 20px;margin-bottom:20px}
+.score-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.score-val{font-family:'Syne',sans-serif;font-size:36px;font-weight:800}
+.score-label{font-size:13px;color:var(--muted)}
+.score-track{flex:1;min-width:120px;height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.score-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.score-checks{display:flex;flex-wrap:wrap;gap:8px}
+.sc-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+/* Final decision panel */
+.decision-panel{background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:20px;margin-bottom:16px}
+.dp-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.dp-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+@media(max-width:500px){.dp-btns{grid-template-columns:1fr}}
+.dp-approve{padding:14px;background:linear-gradient(135deg,var(--green),#16a34a);color:#fff;border:none;border-radius:11px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.dp-approve:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(34,197,94,.35)}
+.dp-approve:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.dp-reject{padding:14px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:11px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.dp-reject:hover{background:rgba(239,68,68,.22)}
+.dp-hold{padding:11px;background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;grid-column:1/-1;transition:background .2s}
+.dp-hold:hover{background:rgba(251,191,36,.2)}
+.dp-wa{padding:11px;background:#25d366;color:#fff;border:none;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;transition:filter .2s}
+.dp-wa:hover{filter:brightness(1.1)}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════
+     LOGIN
+═══════════════════════════════ -->
+<div id="pgLogin" style="display:block">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="lc-top">
+        <div class="lc-badge">⚙️ Admin Only</div>
+        <div class="lc-title">Admin Sign In</div>
+        <div class="lc-sub">Restricted access. SJ Cabs management only.</div>
+      </div>
+      <div class="lc-body">
+        <div class="lf"><label>Username</label><input type="text" id="aUser" placeholder="admin"></div>
+        <div class="lf"><label>Password</label><input type="password" id="aPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')aLogin()"></div>
+        <div class="lerr" id="aErr"></div>
+        <button class="login-btn" onclick="aLogin()">Access Admin Panel →</button>
+        <div style="text-align:center;font-size:12px;color:var(--muted)">Demo: username <strong style="color:var(--gold)">admin</strong> / password <strong style="color:var(--gold)">sj2025</strong></div>
+        <div style="text-align:center"><a href="sjcabs.html" style="color:var(--muted);font-size:12px;text-decoration:none">← Back to website</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Early auth — must be defined before main script so onclick works in all sandboxes -->
+<script>
+function aLogin(){
+  var u=document.getElementById('aUser').value.trim();
+  var p=document.getElementById('aPass').value;
+  var err=document.getElementById('aErr');
+  if(u==='admin'&&p==='sj2025'){
+    err.classList.remove('show');
+    document.getElementById('pgLogin').style.display='none';
+    document.getElementById('pgAdmin').style.display='block';
+    if(typeof refreshAll==='function'){refreshAll();}
+    else{document.addEventListener('DOMContentLoaded',function(){if(typeof refreshAll==='function')refreshAll();});}
+  } else {
+    err.textContent='Invalid username or password. Demo: admin / sj2025';
+    err.classList.add('show');
+  }
+}
+function aLogout(){
+  document.getElementById('pgAdmin').style.display='none';
+  document.getElementById('pgLogin').style.display='block';
+  document.getElementById('aUser').value='';
+  document.getElementById('aPass').value='';
+}
+</script>
+
+<!-- ═══════════════════════════════
+     ADMIN PANEL
+═══════════════════════════════ -->
+<div id="pgAdmin" style="display:none">
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-logo">
+        <svg viewBox="0 0 600 120" aria-label="SJ Cabs"><text x="300" y="92" text-anchor="middle" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-size="88" font-weight="900" fill="#FFB800" letter-spacing="-2">SJ CABS</text></svg>
+        <span class="sb-tag">Admin Panel</span>
+      </div>
+      <nav class="sb-nav">
+        <div class="sb-section">Main</div>
+        <button class="sb-item active" id="sbOverview" onclick="showSection('Overview')"><span class="sb-icon">📊</span>Overview</button>
+        <button class="sb-item" id="sbBookings" onclick="showSection('Bookings')"><span class="sb-icon">📋</span>All Bookings</button>
+        <button class="sb-item" id="sbNew" onclick="openNewBooking()"><span class="sb-icon">➕</span>New Booking</button>
+        <div class="sb-section">Fleet</div>
+        <button class="sb-item" id="sbDrivers" onclick="showSection('Drivers')"><span class="sb-icon">🧑‍✈️</span>Drivers</button>
+        <button class="sb-item" id="sbFleet" onclick="showSection('Fleet')"><span class="sb-icon">🚖</span>Fleet Status</button>
+        <div class="sb-section">Reports</div>
+        <button class="sb-item" id="sbRevenue" onclick="showSection('Revenue')"><span class="sb-icon">💰</span>Revenue</button>
+        <div class="sb-section">Partners</div>
+        <button class="sb-item" id="sbCaptains" onclick="showSection('Captains')"><span class="sb-icon">🧑‍✈️</span>Captain Registrations <span id="captainBadge" style="display:none;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:100px;margin-left:auto">0</span></button>
+        <div class="sb-section">Analytics</div>
+        <button class="sb-item" id="sbPerformance" onclick="showSection('Performance')"><span class="sb-icon">📈</span>Driver Performance</button>
+        <button class="sb-item" id="sbFeedback" onclick="showSection('Feedback')"><span class="sb-icon">⭐</span>Customer Feedback <span id="feedbackBadge" style="display:none;background:var(--blue);color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:100px;margin-left:auto">0</span></button>
+      </nav>
+      <div class="sb-bottom">
+        <button class="sb-logout" onclick="aLogout()">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="admin-main">
+      <!-- TOP BAR -->
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="tb-ham" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+          <div class="tb-title" id="topbarTitle">Overview</div>
+        </div>
+        <div class="tb-right">
+          <button class="tb-refresh" onclick="refreshAll()">↻ Refresh</button>
+          <div class="tb-admin"><div class="tb-av">A</div><span class="tb-name">Admin</span></div>
+        </div>
+      </div>
+
+      <div class="admin-content">
+
+        <!-- OVERVIEW -->
+        <div class="section-panel active anim" id="sOverview">
+          <div class="kpi-row">
+            <div class="kpi"><div class="kpi-icon">📋</div><div class="kpi-val" id="kTotal">0</div><div class="kpi-lbl">Total Bookings</div></div>
+            <div class="kpi"><div class="kpi-icon">⚡</div><div class="kpi-val" id="kActive">0</div><div class="kpi-lbl">Active Now</div></div>
+            <div class="kpi"><div class="kpi-icon">✅</div><div class="kpi-val" id="kCompleted">0</div><div class="kpi-lbl">Completed</div></div>
+            <div class="kpi"><div class="kpi-icon">💰</div><div class="kpi-val" id="kRevenue">₹0</div><div class="kpi-lbl">Total Revenue</div></div>
+          </div>
+
+          <!-- Revenue chart -->
+          <div class="chart-placeholder">
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:16px">Revenue This Week</div>
+            <div class="chart-bars" id="revChart"></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:12px;text-align:center">* Based on completed bookings fare data</div>
+          </div>
+
+          <!-- Round Robin status -->
+          <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:12px">Round Robin — Next Assignment</div>
+          <div class="rr-indicator" id="rrIndicator">
+            <span class="rr-arrow">→</span>
+            <span>Next booking will be assigned to: <span class="rr-name" id="rrNextDriver">Suresh Patil</span></span>
+            <span style="font-size:12px;color:var(--muted);margin-left:auto" id="rrCabInfo">MH12ZE7415</span>
+          </div>
+
+          <!-- Recent bookings -->
+          <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:12px">Recent Bookings</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>ID</th><th>Customer</th><th>Route</th><th>Driver</th><th>Status</th><th>Fare</th><th>Actions</th></tr></thead>
+              <tbody id="recentBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- BOOKINGS -->
+        <div class="section-panel anim" id="sBookings">
+          <div class="filters-row">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search booking ID, customer, route…" oninput="renderBookingsTable()">
+            <select class="filter-select" id="statusFilter" onchange="renderBookingsTable()">
+              <option value="">All Statuses</option>
+              <option value="new">New</option>
+              <option value="accepted">Accepted</option>
+              <option value="otw">On The Way</option>
+              <option value="inprogress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select class="filter-select" id="driverFilter" onchange="renderBookingsTable()">
+              <option value="">All Drivers</option>
+              <option value="Suresh Patil">Suresh Patil</option>
+              <option value="Rajesh Kumbhar">Rajesh Kumbhar</option>
+              <option value="Vijay More">Vijay More</option>
+            </select>
+            <button class="action-btn primary" onclick="openNewBooking()">+ New Booking</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>ID</th><th>Customer</th><th>Route</th><th>Type</th><th>Driver / Cab</th><th>Pickup Time</th><th>Fare</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
+              <tbody id="bookingsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- DRIVERS -->
+        <div class="section-panel anim" id="sDrivers">
+          <div style="margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px">Driver Partners</div>
+              <div style="color:var(--muted);font-size:13px">3 registered drivers · All assigned Hyundai Aura S CNG</div>
+            </div>
+          </div>
+          <div class="driver-grid" id="driverGrid"></div>
+          <div style="background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:20px">
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:14px">Driver Booking Summary</div>
+            <div class="table-wrap" style="border:none;border-radius:0">
+              <table class="data-table" id="driverSummaryTable" style="min-width:500px">
+                <thead><tr><th>Driver</th><th>Total Trips</th><th>Completed</th><th>Pending</th><th>Earnings</th></tr></thead>
+                <tbody id="driverSummaryBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLEET -->
+        <div class="section-panel anim" id="sFleet">
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px">Fleet Status</div>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:20px">3 vehicles · Hyundai Aura S CNG</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px" id="fleetGrid"></div>
+        </div>
+
+        <!-- REVENUE (existing) -->
+        <div class="section-panel anim" id="sRevenue">
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:20px">Revenue Report</div>
+          <div class="kpi-row">
+            <div class="kpi"><div class="kpi-icon">📅</div><div class="kpi-val" id="rToday">₹0</div><div class="kpi-lbl">Today</div></div>
+            <div class="kpi"><div class="kpi-icon">📆</div><div class="kpi-val" id="rWeek">₹0</div><div class="kpi-lbl">This Week</div></div>
+            <div class="kpi"><div class="kpi-icon">🗓️</div><div class="kpi-val" id="rMonth">₹0</div><div class="kpi-lbl">This Month</div></div>
+            <div class="kpi"><div class="kpi-icon">💼</div><div class="kpi-val" id="rTotal">₹0</div><div class="kpi-lbl">All Time</div></div>
+          </div>
+          <div class="chart-placeholder">
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:14px">Earnings by Driver</div>
+            <div id="driverEarnChart"></div>
+          </div>
+          <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:12px;padding:16px;font-size:13px;color:var(--muted);line-height:1.75">
+            💡 Revenue shown is total fare from completed bookings. Platform fee (10%) applicable on each trip. Detailed invoice reports available on request. Contact SJ Cabs office at +91 70576 91597.
+          </div>
+        </div>
+
+        <!-- CAPTAINS -->
+        <div class="section-panel anim" id="sCaptains">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+            <div>
+              <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px">Captain Registrations</div>
+              <div style="color:var(--muted);font-size:13px">Review and approve new vehicle partner applications</div>
+            </div>
+            <a href="captain.html" target="_blank" style="padding:9px 18px;background:var(--gold);color:#000;border-radius:9px;font-weight:700;font-size:13px;text-decoration:none">+ New Registration</a>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap" id="capFilters">
+            <button class="action-btn" id="capFAll" onclick="filterCaptains('all',this)" style="background:var(--gold);color:#000">All</button>
+            <button class="action-btn ghost" id="capFPending"  onclick="filterCaptains('pending',this)">Pending</button>
+            <button class="action-btn ghost" id="capFApproved" onclick="filterCaptains('approved',this)">Approved</button>
+            <button class="action-btn ghost" id="capFRejected" onclick="filterCaptains('rejected',this)">Rejected</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Ref ID</th><th>Driver</th><th>Vehicle</th><th>Reg No.</th><th>Mobile</th><th>Submitted</th><th>Docs</th><th>App. Status</th><th>Actions</th></tr></thead>
+              <tbody id="captainsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PERFORMANCE -->
+        <div class="section-panel anim" id="sPerformance">
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px">Driver Performance</div>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:20px">Scorecards, appraisals and trip analytics for all drivers</div>
+          <!-- Driver scorecards -->
+          <div id="perfCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:24px"></div>
+          <!-- Appraisal section -->
+          <div style="background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:20px;margin-bottom:16px">
+            <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+              📋 Appraisal Records
+              <button class="action-btn primary" onclick="openNewAppraisal()">+ New Appraisal</button>
+            </div>
+            <div class="table-wrap" style="border:none;border-radius:0">
+              <table class="data-table" style="min-width:600px">
+                <thead><tr><th>Driver</th><th>Period</th><th>Score</th><th>Strengths</th><th>Areas to Improve</th><th>Reviewer</th><th>Date</th></tr></thead>
+                <tbody id="appraisalBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- FEEDBACK -->
+        <div class="section-panel anim" id="sFeedback">
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px">Customer Feedback</div>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:20px">All feedback submitted by customers for drivers and vehicles</div>
+          <div class="filters-row">
+            <select class="filter-select" id="fbDriverFilter" onchange="renderFeedback()">
+              <option value="">All Drivers</option>
+              <option>Suresh Patil</option>
+              <option>Rajesh Kumbhar</option>
+              <option>Vijay More</option>
+            </select>
+            <select class="filter-select" id="fbRatingFilter" onchange="renderFeedback()">
+              <option value="">All Ratings</option>
+              <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+              <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+              <option value="3">⭐⭐⭐ 3 Stars</option>
+              <option value="2">⭐⭐ 2 Stars</option>
+              <option value="1">⭐ 1 Star</option>
+            </select>
+            <select class="filter-select" id="fbStatusFilter" onchange="renderFeedback()">
+              <option value="">All Status</option>
+              <option value="new">New</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="flagged">Flagged</option>
+            </select>
+          </div>
+          <div class="kpi-row" id="fbKpis"></div>
+          <div id="feedbackCards"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW BOOKING MODAL -->
+<div class="modal-backdrop" id="newBookingModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">➕ Create New Booking</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="ff full"><label>Customer Name</label><input type="text" id="nb-name" placeholder="Rahul Sharma"></div>
+        <div class="ff"><label>Customer Mobile</label><input type="tel" id="nb-mobile" placeholder="+91 98765 43210"></div>
+        <div class="ff"><label>Service Type</label>
+          <select id="nb-type">
+            <option value="oneway">One Way</option>
+            <option value="roundtrip">Round Trip</option>
+            <option value="hourly">Hourly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        <div class="ff"><label>Pickup Location</label><input type="text" id="nb-from" placeholder="Magarpatta, Pune"></div>
+        <div class="ff"><label>Drop Location</label><input type="text" id="nb-to" placeholder="Mumbai, Nashik…"></div>
+        <div class="ff"><label>Pickup Date & Time</label><input type="datetime-local" id="nb-dt"></div>
+        <div class="ff"><label>Fare (₹)</label><input type="number" id="nb-fare" placeholder="2500"></div>
+        <div class="ff full"><label>Assign Driver</label>
+          <select id="nb-driver">
+            <option value="auto">Auto (Round Robin)</option>
+            <option value="SP">Suresh Patil — MH12ZE7415</option>
+            <option value="RK">Rajesh Kumbhar — MH12ZE7420</option>
+            <option value="VM">Vijay More — MH12ZE7421</option>
+          </select>
+        </div>
+        <div class="ff full"><label>Notes</label><textarea id="nb-notes" placeholder="Special instructions…" style="min-height:60px;resize:vertical"></textarea></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="action-btn primary" style="flex:1;padding:13px" onclick="createBooking()">Create Booking</button>
+        <button class="action-btn ghost" style="padding:13px 20px" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING DETAIL MODAL -->
+<div class="modal-backdrop" id="detailModal" onclick="if(event.target===this)closeDetailModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Booking Details</div>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════
+   DRIVER & CAB DATA
+════════════════════════════════════ */
+const DRIVER_DATA=[
+  {id:'SP',name:'Suresh Patil',  mobile:'+91 98234 56789',cab:'Hyundai Aura S CNG',reg:'MH12ZE7415',license:'MH12-2019-0045678',rating:4.8,init:'SP'},
+  {id:'RK',name:'Rajesh Kumbhar',mobile:'+91 97654 32109',cab:'Hyundai Aura S CNG',reg:'MH12ZE7420',license:'MH14-2021-0012345',rating:4.9,init:'RK'},
+  {id:'VM',name:'Vijay More',    mobile:'+91 95432 10987',cab:'Hyundai Aura S CNG',reg:'MH12ZE7421',license:'MH15-2018-0098765',rating:4.7,init:'VM'},
+];
+
+/* ════════════════════════════════════
+   SECTION NAV
+════════════════════════════════════ */
+function showSection(sec){
+  ['Overview','Bookings','Drivers','Fleet','Revenue','Captains','Performance','Feedback'].forEach(s=>{
+    const el=document.getElementById('s'+s);
+    if(el) el.classList.toggle('active',s===sec);
+    const btn=document.getElementById('sb'+s);
+    if(btn) btn.classList.toggle('active',s===sec);
+  });
+  document.getElementById('topbarTitle').textContent=sec==='Performance'?'Driver Performance':sec==='Feedback'?'Customer Feedback':sec;
+  renderSection(sec);
+}
+function renderSection(sec){
+  if(sec==='Overview') renderOverview();
+  else if(sec==='Bookings') renderBookingsTable();
+  else if(sec==='Drivers') renderDrivers();
+  else if(sec==='Fleet') renderFleet();
+  else if(sec==='Revenue') renderRevenue();
+  else if(sec==='Captains') renderCaptains('all');
+  else if(sec==='Performance') renderPerformance();
+  else if(sec==='Feedback') renderFeedback();
+}
+function refreshAll(){renderSection(document.getElementById('topbarTitle').textContent||'Overview');showToast('✅ Data refreshed');}
+
+/* ════════════════════════════════════
+   DATA HELPERS
+════════════════════════════════════ */
+function getAllBookings(){return JSON.parse(localStorage.getItem('sjBookings')||'[]');}
+function saveBookings(arr){localStorage.setItem('sjBookings',JSON.stringify(arr));}
+function getRR(){return parseInt(localStorage.getItem('sjRR')||'0');}
+
+/* ════════════════════════════════════
+   RENDER OVERVIEW
+════════════════════════════════════ */
+function renderOverview(){
+  const all=getAllBookings();
+  const active=all.filter(b=>['new','accepted','otw','inprogress'].includes(b.status));
+  const completed=all.filter(b=>b.status==='completed');
+  const revenue=completed.reduce((s,b)=>s+(b.fare||0),0);
+  document.getElementById('kTotal').textContent=all.length;
+  document.getElementById('kActive').textContent=active.length;
+  document.getElementById('kCompleted').textContent=completed.length;
+  document.getElementById('kRevenue').textContent='₹'+revenue.toLocaleString();
+
+  // Round robin
+  const rrIdx=getRR()%3;
+  const nextDriver=DRIVER_DATA[rrIdx];
+  document.getElementById('rrNextDriver').textContent=nextDriver.name;
+  document.getElementById('rrCabInfo').textContent=nextDriver.reg;
+
+  // Revenue chart (7 days mock + real data)
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today=new Date().getDay();
+  const chartData=days.map((_,i)=>{
+    const dayBookings=completed.filter(b=>{
+      const d=new Date(b.createdAt);
+      return d.getDay()===i;
+    });
+    return{day:days[i],val:dayBookings.reduce((s,b)=>s+(b.fare||0),0)||Math.floor(Math.random()*3000+500)};
+  });
+  const max=Math.max(...chartData.map(d=>d.val));
+  document.getElementById('revChart').innerHTML=chartData.map(d=>`
+    <div class="chart-bar-wrap">
+      <div class="chart-val">₹${Math.round(d.val/1000*10)/10}k</div>
+      <div class="chart-bar" style="height:${Math.round((d.val/max)*90)+4}px"></div>
+      <div class="chart-label" style="${d.day===days[today]?'color:var(--gold);font-weight:700':''}">${d.day}</div>
+    </div>`).join('');
+
+  // Recent bookings table
+  const recent=all.slice().reverse().slice(0,5);
+  document.getElementById('recentBody').innerHTML=recent.length?recent.map(b=>bookingRow(b,true)).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No bookings yet. Create one from the sidebar.</td></tr>';
+}
+
+/* ════════════════════════════════════
+   RENDER BOOKINGS TABLE
+════════════════════════════════════ */
+function renderBookingsTable(){
+  const all=getAllBookings();
+  const search=(document.getElementById('searchInput')||{value:''}).value.toLowerCase();
+  const status=(document.getElementById('statusFilter')||{value:''}).value;
+  const driverF=(document.getElementById('driverFilter')||{value:''}).value;
+  let filtered=all;
+  if(search) filtered=filtered.filter(b=>b.id.toLowerCase().includes(search)||((b.customer&&b.customer.name)||'').toLowerCase().includes(search)||(b.from+'→'+b.to).toLowerCase().includes(search));
+  if(status) filtered=filtered.filter(b=>b.status===status);
+  if(driverF) filtered=filtered.filter(b=>b.driver&&b.driver.name===driverF);
+  const tbody=document.getElementById('bookingsBody');
+  if(!tbody) return;
+  tbody.innerHTML=filtered.length?filtered.slice().reverse().map(b=>bookingRow(b,false)).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">No bookings match your filter.</td></tr>';
+}
+
+const STATUS_MAP={new:'sp-new',accepted:'sp-accepted',otw:'sp-otw',inprogress:'sp-inprogress',completed:'sp-completed',cancelled:'sp-cancelled'};
+const STATUS_LBL={new:'New',accepted:'Accepted',otw:'On Way',inprogress:'In Progress',completed:'Completed',cancelled:'Cancelled'};
+
+function bookingRow(b,compact){
+  const st=`<span class="status-pill ${STATUS_MAP[b.status]||'sp-new'}"><span class="sdot"></span>${STATUS_LBL[b.status]||b.status}</span>`;
+  const custName=b.customer?b.customer.name:'—';
+  const driverName=b.driver?b.driver.name:'—';
+  const driverReg=b.driver?`<div style="font-family:monospace;font-size:11px;color:var(--gold)">${b.driver.reg}</div>`:'';
+  const pickup=b.pickup?new Date(b.pickup).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+  if(compact){
+    return `<tr>
+      <td class="mono">${b.id}</td>
+      <td>${custName}</td>
+      <td>${b.from} → ${b.to}</td>
+      <td>${driverName}${driverReg}</td>
+      <td>${st}</td>
+      <td>${b.fare?'₹'+b.fare.toLocaleString():'—'}</td>
+      <td><div class="td-actions"><button class="td-btn view" onclick="showDetail('${b.id}')">View</button>${b.status!=='completed'&&b.status!=='cancelled'?`<button class="td-btn del" onclick="cancelBooking('${b.id}')">Cancel</button>`:''}</div></td>
+    </tr>`;
+  }
+  return `<tr>
+    <td class="mono">${b.id}</td>
+    <td><div style="font-weight:600">${custName}</div><div style="font-size:11px;color:var(--muted)">${b.customer?b.customer.mobile:''}</div></td>
+    <td>${b.from} → ${b.to}</td>
+    <td style="text-transform:capitalize">${b.type||'—'}</td>
+    <td>${driverName}${driverReg}</td>
+    <td style="font-size:12px">${pickup}</td>
+    <td>${b.fare?'₹'+b.fare.toLocaleString():'—'}</td>
+    <td>${st}</td>
+    <td>${b.paymentStatus==='confirmed'?'<span class="status-pill sp-paid"><span class="sdot"></span>Confirmed</span>':b.paymentStatus==='pending_confirmation'?'<span class="status-pill sp-pay-pending"><span class="sdot"></span>Notified</span>':'<span style="color:var(--muted);font-size:12px">Pending</span>'}</td>
+    <td><div class="td-actions">
+      <button class="td-btn view" onclick="showDetail('${b.id}')">View</button>
+      ${b.paymentStatus==='pending_confirmation'?`<button class="td-btn" style="background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)" onclick="confirmPayment('${b.id}')">✓ Pay</button>`:''}
+      ${b.status!=='completed'&&b.status!=='cancelled'?`<button class="td-btn edit" onclick="reassignBooking('${b.id}')">Reassign</button><button class="td-btn del" onclick="cancelBooking('${b.id}')">Cancel</button>`:''}
+    </div></td>
+  </tr>`;
+}
+
+/* ════════════════════════════════════
+   RENDER DRIVERS
+════════════════════════════════════ */
+function renderDrivers(){
+  const all=getAllBookings();
+  document.getElementById('driverGrid').innerHTML=DRIVER_DATA.map(d=>{
+    const myBookings=all.filter(b=>b.driver&&b.driver.reg===d.reg);
+    const active=myBookings.filter(b=>['new','accepted','otw','inprogress'].includes(b.status)).length;
+    return `<div class="driver-card">
+      <div class="dc-top">
+        <div class="dc-av">${d.init}</div>
+        <div>
+          <div class="dc-name">${d.name}</div>
+          <div class="dc-mobile">${d.mobile}</div>
+          <div class="dc-status ${active>0?'on':'off'}">${active>0?'● Active — '+active+' ride':'○ Available'}</div>
+        </div>
+      </div>
+      <div class="dc-info-grid">
+        <div class="dc-info"><div class="dc-info-lbl">Cab</div><div class="dc-info-val">${d.cab}</div></div>
+        <div class="dc-info"><div class="dc-info-lbl">Reg No.</div><div class="dc-info-val reg">${d.reg}</div></div>
+        <div class="dc-info"><div class="dc-info-lbl">License</div><div class="dc-info-val" style="font-size:11px">${d.license}</div></div>
+        <div class="dc-info"><div class="dc-info-lbl">Rating</div><div class="dc-info-val" style="color:var(--gold)">${d.rating} ⭐</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <a href="tel:${d.mobile.replace(/\D/g,'')}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);border-radius:9px;color:var(--gold);text-decoration:none;font-size:12px;font-weight:600">📞 Call</a>
+        <a href="https://wa.me/91${d.mobile.replace(/\D/g,'').slice(-10)}" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.2);border-radius:9px;color:#4ade80;text-decoration:none;font-size:12px;font-weight:600">💬 WA</a>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Summary table
+  document.getElementById('driverSummaryBody').innerHTML=DRIVER_DATA.map(d=>{
+    const mine=all.filter(b=>b.driver&&b.driver.reg===d.reg);
+    const completed=mine.filter(b=>b.status==='completed');
+    const pending=mine.filter(b=>['new','accepted','otw','inprogress'].includes(b.status));
+    const earnings=completed.reduce((s,b)=>s+(b.fare||0),0);
+    return `<tr>
+      <td><div style="font-weight:700">${d.name}</div><div style="font-size:11px;color:var(--muted)">${d.reg}</div></td>
+      <td>${mine.length}</td>
+      <td style="color:var(--green)">${completed.length}</td>
+      <td style="color:var(--gold)">${pending.length}</td>
+      <td style="font-family:'Syne',sans-serif;font-weight:800;color:var(--gold)">₹${earnings.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════
+   RENDER FLEET
+════════════════════════════════════ */
+function renderFleet(){
+  const all=getAllBookings();
+  document.getElementById('fleetGrid').innerHTML=DRIVER_DATA.map(d=>{
+    const active=all.filter(b=>b.driver&&b.driver.reg===d.reg&&['inprogress','otw'].includes(b.status));
+    const statusLabel=active.length?'🟢 On a Trip':'⚪ Available';
+    return `<div style="background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:22px;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(255,184,0,.25)'" onmouseout="this.style.borderColor=''">
+      <div style="font-size:52px;text-align:center;margin-bottom:14px">🚖</div>
+      <div style="text-align:center;margin-bottom:14px">
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;font-family:monospace;color:var(--gold);letter-spacing:1px">${d.reg}</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">${d.cab}</div>
+        <div style="font-size:13px;font-weight:600;margin-top:6px">${statusLabel}</div>
+      </div>
+      <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Assigned Driver</div>
+        <div style="font-weight:700">${d.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${d.mobile}</div>
+      </div>
+      ${active.length?`<div style="margin-top:12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:10px;font-size:12px;color:#4ade80">Active Ride: ${active[0].from} → ${active[0].to}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════
+   RENDER REVENUE
+════════════════════════════════════ */
+function renderRevenue(){
+  const all=getAllBookings().filter(b=>b.status==='completed');
+  const now=new Date();
+  const todayS=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const weekS=new Date(now);weekS.setDate(now.getDate()-7);
+  const monthS=new Date(now.getFullYear(),now.getMonth(),1);
+  const tot=(arr)=>arr.reduce((s,b)=>s+(b.fare||0),0);
+  document.getElementById('rToday').textContent='₹'+tot(all.filter(b=>new Date(b.createdAt)>=todayS)).toLocaleString();
+  document.getElementById('rWeek').textContent='₹'+tot(all.filter(b=>new Date(b.createdAt)>=weekS)).toLocaleString();
+  document.getElementById('rMonth').textContent='₹'+tot(all.filter(b=>new Date(b.createdAt)>=monthS)).toLocaleString();
+  document.getElementById('rTotal').textContent='₹'+tot(all).toLocaleString();
+
+  // Driver earnings chart
+  document.getElementById('driverEarnChart').innerHTML=DRIVER_DATA.map(d=>{
+    const mine=all.filter(b=>b.driver&&b.driver.reg===d.reg);
+    const earn=tot(mine);
+    const pct=earn>0?Math.round((earn/Math.max(1,tot(all)))*100):0;
+    return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div style="width:80px;font-size:12px;font-weight:600;flex-shrink:0">${d.name.split(' ')[0]}</div>
+      <div style="flex:1;height:28px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden">
+        <div style="width:${pct||2}%;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:5px;transition:width .6s ease;display:flex;align-items:center;padding-left:8px">
+          ${pct>20?`<span style="font-size:11px;font-weight:700;color:#000">${pct}%</span>`:''}
+        </div>
+      </div>
+      <div style="width:70px;text-align:right;font-family:'Syne',sans-serif;font-weight:800;color:var(--gold);font-size:13px">₹${earn.toLocaleString()}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════
+   BOOKING DETAIL MODAL
+════════════════════════════════════ */
+function showDetail(id){
+  const b=getAllBookings().find(x=>x.id===id);
+  if(!b)return;
+  const pickup=b.pickup?new Date(b.pickup).toLocaleString('en-IN',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+  document.getElementById('detailBody').innerHTML=`
+    <div style="display:grid;gap:12px">
+      <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:12px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Booking ID</div>
+            <div style="font-family:monospace;font-size:16px;font-weight:700;color:var(--gold)">${b.id}</div>
+          </div>
+          <span class="status-pill ${STATUS_MAP[b.status]||'sp-new'}"><span class="sdot"></span>${STATUS_LBL[b.status]||b.status}</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:13px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">From</div><div style="font-weight:600">${b.from}</div></div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:13px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">To</div><div style="font-weight:600">${b.to}</div></div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:13px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">Type</div><div style="font-weight:600;text-transform:capitalize">${b.type||'—'}</div></div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:13px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">Fare</div><div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--gold)">${b.fare?'₹'+b.fare.toLocaleString():'—'}</div></div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:13px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">Pickup Time</div><div style="font-weight:600;font-size:13px">${pickup}</div></div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:13px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">Booked On</div><div style="font-weight:600;font-size:13px">${new Date(b.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div></div>
+      </div>
+      ${b.customer?`<div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Customer</div>
+        <div style="font-weight:700;margin-bottom:3px">${b.customer.name}</div>
+        <div style="font-size:13px;color:var(--muted)">${b.customer.mobile}</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <a href="tel:${(b.customer.mobile||'').replace(/\D/g,'')}" style="flex:1;padding:9px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);border-radius:8px;color:var(--gold);text-decoration:none;font-size:12px;font-weight:600;text-align:center">📞 Call</a>
+          <a href="https://wa.me/${(b.customer.mobile||'').replace(/\D/g,'')}" target="_blank" style="flex:1;padding:9px;background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.2);border-radius:8px;color:#4ade80;text-decoration:none;font-size:12px;font-weight:600;text-align:center">💬 WhatsApp</a>
+        </div>
+      </div>`:''}
+      ${b.driver?`<div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Driver</div>
+        <div style="font-weight:700;margin-bottom:3px">${b.driver.name}</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:4px">${b.driver.mobile}</div>
+        <div style="font-family:monospace;font-size:13px;color:var(--gold)">${b.driver.cab} · ${b.driver.reg}</div>
+      </div>`:''}
+      ${b.paymentStatus==='pending_confirmation'?`<button onclick="confirmPayment('${b.id}')" style="width:100%;padding:12px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;color:#4ade80;margin-bottom:10px">&#10003; Confirm Payment Received</button>`:''
+      }
+      ${b.status!=='completed'&&b.status!=='cancelled'?`<div style="display:flex;gap:10px">
+        <button onclick="changeStatus('${b.id}','completed')" style="flex:1;padding:12px;background:var(--green);color:#fff;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer">✓ Mark Completed</button>
+        <button onclick="cancelBooking('${b.id}')" style="flex:1;padding:12px;background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2);border-radius:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancel Booking</button>
+      </div>`:''}
+    </div>`;
+  document.getElementById('detailModal').classList.add('open');
+}
+function closeDetailModal(){document.getElementById('detailModal').classList.remove('open');}
+function changeStatus(id,status){
+  const all=getAllBookings();
+  const idx=all.findIndex(b=>b.id===id);
+  if(idx>=0){all[idx].status=status;saveBookings(all);}
+  closeDetailModal();refreshAll();showToast('Status updated to: '+status);
+}
+function confirmPayment(id){
+  const all=getAllBookings();
+  const idx=all.findIndex(b=>b.id===id);
+  if(idx>=0){all[idx].paymentStatus='confirmed';all[idx].paymentConfirmedAt=new Date().toISOString();saveBookings(all);}
+  closeDetailModal();refreshAll();showToast('✅ Payment confirmed for '+id);
+}
+function cancelBooking(id){
+  if(!confirm('Cancel booking '+id+'?'))return;
+  changeStatus(id,'cancelled');
+}
+
+/* ════════════════════════════════════
+   REASSIGN
+════════════════════════════════════ */
+function reassignBooking(id){
+  const driverChoice=prompt('Reassign to driver:\n1. Suresh Patil (MH12ZE7415)\n2. Rajesh Kumbhar (MH12ZE7420)\n3. Vijay More (MH12ZE7421)\n\nEnter 1, 2 or 3:');
+  const map={'1':DRIVER_DATA[0],'2':DRIVER_DATA[1],'3':DRIVER_DATA[2]};
+  const d=map[driverChoice];
+  if(!d){return;}
+  const all=getAllBookings();
+  const idx=all.findIndex(b=>b.id===id);
+  if(idx>=0){all[idx].driver={name:d.name,mobile:d.mobile,cab:d.cab,reg:d.reg};saveBookings(all);}
+  refreshAll();showToast('✅ Reassigned to '+d.name);
+}
+
+/* ════════════════════════════════════
+   NEW BOOKING
+════════════════════════════════════ */
+function openNewBooking(){
+  document.getElementById('newBookingModal').classList.add('open');
+  // Set default datetime
+  const dt=new Date();dt.setHours(dt.getHours()+1);
+  document.getElementById('nb-dt').value=dt.toISOString().slice(0,16);
+}
+function closeModal(){document.getElementById('newBookingModal').classList.remove('open');}
+function createBooking(){
+  const name=document.getElementById('nb-name').value.trim();
+  const mobile=document.getElementById('nb-mobile').value.trim();
+  const type=document.getElementById('nb-type').value;
+  const from=document.getElementById('nb-from').value.trim();
+  const to=document.getElementById('nb-to').value.trim();
+  const dt=document.getElementById('nb-dt').value;
+  const fare=parseInt(document.getElementById('nb-fare').value)||0;
+  const driverKey=document.getElementById('nb-driver').value;
+  if(!name||!from||!to){showToast('⚠️ Please fill Name, From and To fields');return;}
+  // Assign driver
+  let driver;
+  if(driverKey==='auto'){
+    const rrIdx=getRR()%3;
+    driver=DRIVER_DATA[rrIdx];
+    localStorage.setItem('sjRR',String(getRR()+1));
+  } else {
+    driver=DRIVER_DATA.find(d=>d.id===driverKey)||DRIVER_DATA[0];
+  }
+  const now=new Date();
+  const id='SJC'+now.getFullYear()+(now.getMonth()+1+'').padStart(2,'0')+(now.getDate()+'').padStart(2,'0')+'-'+(Math.floor(Math.random()*900)+100);
+  const all=getAllBookings();
+  all.push({id,type,from,to,fare,status:'new',driver:{name:driver.name,mobile:driver.mobile,cab:driver.cab,reg:driver.reg},customer:{name,mobile},pickup:dt?new Date(dt).toISOString():now.toISOString(),createdAt:now.toISOString(),userId:'admin'});
+  saveBookings(all);
+  closeModal();
+  refreshAll();
+  showToast('✅ Booking '+id+' created and assigned to '+driver.name);
+  // Clear form
+  ['nb-name','nb-mobile','nb-from','nb-to','nb-fare','nb-notes'].forEach(id=>document.getElementById(id).value='');
+}
+
+/* ════════════════════════════════════
+   CAPTAIN REGISTRATIONS
+════════════════════════════════════ */
+let capFilter='all';
+function filterCaptains(f,btn){
+  capFilter=f;
+  document.querySelectorAll('#capFilters button').forEach(b=>{
+    b.style.background='';b.style.color='';b.className='action-btn ghost';
+  });
+  btn.style.background='var(--gold)';btn.style.color='#000';btn.className='action-btn';
+  renderCaptains(f);
+}
+function renderCaptains(filter){
+  const all=JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  // Update badge count of pending
+  const pendingCount=all.filter(c=>c.status==='pending').length;
+  const badge=document.getElementById('captainBadge');
+  if(badge){badge.style.display=pendingCount>0?'inline':'none';badge.textContent=pendingCount;}
+  let list=filter==='all'?all:all.filter(c=>c.status===filter);
+  const tbody=document.getElementById('captainsBody');
+  if(!tbody)return;
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">No '+filter+' registrations found.</td></tr>';
+    return;
+  }
+  const STATUS_COLORS={pending:'sp-accepted',approved:'sp-inprogress',rejected:'sp-cancelled'};
+  tbody.innerHTML=list.slice().reverse().map(c=>{
+    const d=c.driver||{};
+    const v=c.vehicle||{};
+    const docsCount=Object.keys(c.uploads||{}).length;
+    const reqDocs=['rc-front','rc-back','insurance','veh-front','veh-right','veh-left','veh-rear','aadhaar-front','aadhaar-back','dl-front','dl-back','pvc'];
+    const docsComplete=reqDocs.every(k=>c.uploads&&c.uploads[k]);
+    const submitted=new Date(c.submittedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    return `<tr>
+      <td class="mono" style="font-size:11px">${c.refId}</td>
+      <td><div style="font-weight:600">${d.name||'—'}</div><div style="font-size:11px;color:var(--muted)">${c.contact&&c.contact.mobile||'—'}</div></td>
+      <td><div style="font-weight:600">${v.mfr||''} ${v.model||''}</div><div style="font-size:11px;color:var(--muted)">${v.variant||''} · ${v.fuel||''}</div></td>
+      <td><span style="font-family:monospace;font-size:12px;color:var(--gold)">${v.regno||'—'}</span></td>
+      <td style="font-size:13px">${c.contact&&c.contact.mobile||'—'}</td>
+      <td style="font-size:12px">${submitted}</td>
+      <td><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:${docsComplete?'rgba(34,197,94,.1)':'rgba(251,191,36,.1)'};color:${docsComplete?'#4ade80':'#fbbf24'};border:1px solid ${docsComplete?'rgba(34,197,94,.2)':'rgba(251,191,36,.2)'}">${docsCount} uploaded${docsComplete?' ✓':' ⚠'}</span></td>
+      <td><span class="status-pill ${STATUS_COLORS[c.status]||'sp-new'}"><span class="sdot"></span>${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span></td>
+      <td><div class="td-actions">
+        <button class="td-btn view" onclick="viewCaptain('${c.refId}')">Review</button>
+        ${c.status==='pending'?`<button class="td-btn" style="background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)" onclick="approveCaptain('${c.refId}')">✓ Approve</button><button class="td-btn del" onclick="rejectCaptain('${c.refId}')">Reject</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function viewCaptain(refId){
+  const all=JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  const c=all.find(x=>x.refId===refId);
+  if(!c)return;
+  const d=c.driver||{};const v=c.vehicle||{};
+  const docList=Object.entries(c.uploads||{}).map(([k,name])=>
+    `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:11px;font-weight:700;color:#4ade80;background:rgba(34,197,94,.1);padding:2px 8px;border-radius:100px;flex-shrink:0">✓</span><span style="font-size:12px;color:var(--muted);flex:1">${k.replace(/-/g,' ').replace(/\b\w/g,x=>x.toUpperCase())}</span><span style="font-size:11px;color:var(--muted)">${name.slice(0,24)}</span></div>`
+  ).join('');
+  document.getElementById('detailBody').innerHTML=`
+    <div style="display:grid;gap:12px">
+      <div style="background:rgba(255,184,0,.07);border:1px solid rgba(255,184,0,.2);border-radius:12px;padding:14px">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:3px">${d.name||'—'}</div>
+        <div style="font-size:12px;color:var(--muted)">Ref: <span style="font-family:monospace;color:var(--gold)">${c.refId}</span> &nbsp;·&nbsp; ${new Date(c.submittedAt).toLocaleString('en-IN')}</div>
+      </div>
+      <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:14px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Vehicle</div>
+        <div style="font-weight:700;margin-bottom:4px">${v.mfr} ${v.model} ${v.variant}</div>
+        <div style="font-size:12px;color:var(--muted)">${v.fuel} · ${v.colour} · ${v.seats} seats · Year ${v.mfrYear} · Purchased ${v.dop}</div>
+        <div style="margin-top:6px;font-family:monospace;font-size:13px;font-weight:700;color:var(--gold)">${v.regno}</div>
+      </div>
+      <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:14px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Driver Details</div>
+        <div style="font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><div style="color:var(--muted);font-size:11px">Name</div><div style="font-weight:600">${d.name||'—'}</div></div>
+          <div><div style="color:var(--muted);font-size:11px">Mobile</div><div style="font-weight:600">${c.contact&&c.contact.mobile||'—'}</div></div>
+          <div><div style="color:var(--muted);font-size:11px">DL No.</div><div style="font-weight:600;font-family:monospace">${d.dlno||'—'}</div></div>
+          <div><div style="color:var(--muted);font-size:11px">DL Expiry</div><div style="font-weight:600">${d.dlexp||'—'}</div></div>
+          <div><div style="color:var(--muted);font-size:11px">PVC Date</div><div style="font-weight:600">${d.pvcdate||'—'}</div></div>
+          <div><div style="color:var(--muted);font-size:11px">PVC Station</div><div style="font-weight:600">${d.pvcstn||'—'}</div></div>
+        </div>
+      </div>
+      <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:14px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Documents Uploaded (${Object.keys(c.uploads||{}).length})</div>
+        ${docList||'<div style="color:var(--muted);font-size:12px">No documents uploaded</div>'}
+      </div>
+      ${c.status==='pending'?`<div style="display:flex;gap:10px">
+        <button onclick="approveCaptain('${c.refId}')" style="flex:1;padding:12px;background:var(--green);color:#fff;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer">✓ Approve</button>
+        <button onclick="rejectCaptain('${c.refId}')" style="flex:1;padding:12px;background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer">✗ Reject</button>
+      </div>`:''}
+    </div>`;
+  document.getElementById('detailModal').classList.add('open');
+}
+function approveCaptain(refId){
+  updateCaptainStatus(refId,'approved');
+  closeDetailModal();
+  showToast('✅ Captain '+refId+' approved! Notify driver via WhatsApp.');
+}
+function rejectCaptain(refId){
+  const reason=prompt('Reason for rejection (will be noted):');
+  if(reason===null)return;
+  updateCaptainStatus(refId,'rejected',reason);
+  closeDetailModal();
+  showToast('Captain '+refId+' rejected.');
+}
+function updateCaptainStatus(refId,status,reason,captainStatus,pendingDocs){
+  const all=JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  const idx=all.findIndex(c=>c.refId===refId);
+  if(idx>=0){
+    all[idx].status=status;
+    all[idx].captainStatus=captainStatus||status;
+    all[idx].reviewedAt=new Date().toISOString();
+    if(reason) all[idx].rejectionReason=reason;
+    if(pendingDocs) all[idx].pendingDocs=pendingDocs;
+    localStorage.setItem('sjCaptains',JSON.stringify(all));
+  }
+  renderCaptains(capFilter);
+}
+
+/* Update the renderCaptains row to show granular status + status changer */
+function getCaptainStatusLabel(c){
+  const map={
+    submitted:'Submitted',under_review:'Under Review',documents_pending:'Docs Pending',
+    documents_not_matching:'Docs Mismatch',document_not_appropriate:'Doc Quality Issue',
+    inspection_scheduled:'Inspection Scheduled',inspection_completed:'Inspection Done',
+    resubmission_required:'Resubmission Required',approved:'Approved',rejected:'Rejected'
+  };
+  return map[c.captainStatus||c.status||'submitted']||'Submitted';
+}
+function getCaptainStatusClass(c){
+  const s=c.captainStatus||c.status||'submitted';
+  if(s==='approved') return 'sp-inprogress';
+  if(s==='rejected') return 'sp-cancelled';
+  if(s==='under_review') return 'sp-accepted';
+  if(s==='inspection_scheduled'||s==='inspection_completed') return 'sp-otw';
+  return 'sp-new';
+}
+
+/* Override renderCaptains to add status dropdown control */
+const _origRenderCaptains = renderCaptains;
+
+function renderCaptains(filter){
+  const all=JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  const pendingCount=all.filter(c=>c.captainStatus==='submitted'||c.status==='pending').length;
+  const badge=document.getElementById('captainBadge');
+  if(badge){badge.style.display=pendingCount>0?'inline':'none';badge.textContent=pendingCount;}
+  let list=filter==='all'?all:all.filter(c=>c.status===filter);
+  const tbody=document.getElementById('captainsBody');
+  if(!tbody)return;
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">No '+filter+' registrations found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=list.slice().reverse().map(c=>{
+    const d=c.driver||{},v=c.vehicle||{},u=c.uploads||{};
+    const docsOk=['rc-front','rc-back','insurance','veh-front','veh-right','veh-left','veh-rear','aadhaar-front','aadhaar-back','dl-front','dl-back','pvc'].every(k=>u[k]);
+    const submitted=new Date(c.submittedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    const stClass=getCaptainStatusClass(c);
+    const stLabel=getCaptainStatusLabel(c);
+    return `<tr>
+      <td class="mono" style="font-size:11px">${c.refId}</td>
+      <td><div style="font-weight:600">${d.name||'—'}</div><div style="font-size:11px;color:var(--muted)">${c.contact&&c.contact.mobile||'—'}</div></td>
+      <td><div style="font-weight:600">${(v.mfr||'')+' '+(v.model||'')}</div><div style="font-size:11px;color:var(--muted)">${v.variant||''} · ${v.fuel||''}</div></td>
+      <td><span style="font-family:monospace;font-size:12px;color:var(--gold)">${v.regno||'—'}</span></td>
+      <td style="font-size:13px">${c.contact&&c.contact.mobile||'—'}</td>
+      <td style="font-size:12px">${submitted}</td>
+      <td><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;background:${docsOk?'rgba(34,197,94,.1)':'rgba(251,191,36,.1)'};color:${docsOk?'#4ade80':'#fbbf24'};border:1px solid ${docsOk?'rgba(34,197,94,.2)':'rgba(251,191,36,.2)'}">${docsOk?'✓ Complete':'⚠ Incomplete'}</span></td>
+      <td>
+        <select style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 8px;color:#fff;font-size:12px;outline:none;cursor:pointer;max-width:140px" onchange="setCaptainStatus('${c.refId}',this.value,this)" title="Set Status">
+          <option value="submitted" ${(c.captainStatus||'submitted')==='submitted'?'selected':''}>Submitted</option>
+          <option value="under_review" ${c.captainStatus==='under_review'?'selected':''}>Under Review</option>
+          <option value="documents_pending" ${c.captainStatus==='documents_pending'?'selected':''}>Docs Pending</option>
+          <option value="documents_not_matching" ${c.captainStatus==='documents_not_matching'?'selected':''}>Docs Mismatch</option>
+          <option value="document_not_appropriate" ${c.captainStatus==='document_not_appropriate'?'selected':''}>Doc Quality Issue</option>
+          <option value="inspection_scheduled" ${c.captainStatus==='inspection_scheduled'?'selected':''}>Inspection Scheduled</option>
+          <option value="inspection_completed" ${c.captainStatus==='inspection_completed'?'selected':''}>Inspection Done</option>
+          <option value="resubmission_required" ${c.captainStatus==='resubmission_required'?'selected':''}>Resubmission Required</option>
+          <option value="approved" ${c.captainStatus==='approved'?'selected':''}>✓ Approved</option>
+          <option value="rejected" ${c.captainStatus==='rejected'?'selected':''}>✗ Rejected</option>
+        </select>
+      </td>
+      <td><div class="td-actions">
+        <button class="td-btn view" onclick="viewCaptain('${c.refId}')">Review</button>
+        ${c.captainStatus==='rejected'||c.status==='rejected'?'':'<button class="td-btn del" onclick="rejectCaptain(\''+c.refId+'\')">Reject</button>'}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function setCaptainStatus(refId,newStatus,selectEl){
+  const all=JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  const idx=all.findIndex(c=>c.refId===refId);
+  if(idx<0) return;
+  if(newStatus==='rejected'){
+    const reason=prompt('Reason for rejection (will be shown to driver):');
+    if(reason===null){selectEl.value=all[idx].captainStatus||'submitted';return;}
+    all[idx].rejectionReason=reason;
+    all[idx].status='rejected';
+  } else {
+    all[idx].status=newStatus==='approved'?'approved':'pending';
+  }
+  all[idx].captainStatus=newStatus;
+  all[idx].reviewedAt=new Date().toISOString();
+  localStorage.setItem('sjCaptains',JSON.stringify(all));
+  showToast('Status updated → '+newStatus.replace(/_/g,' '));
+  renderCaptains(capFilter);
+  // Send WhatsApp notification prompt
+  const d=all[idx].driver||{},ct=all[idx].contact||{};
+  const mobile=ct.mobile?ct.mobile.replace(/\D/g,'').slice(-10):'';
+  if(mobile&&(newStatus==='approved'||newStatus==='rejected'||newStatus==='under_review')){
+    const msgs={
+      approved:`Hi ${d.name}! 🎉 Your SJ Cabs Captain application (${all[idx].refId}) has been APPROVED! Our team will contact you shortly.`,
+      rejected:`Hi ${d.name}, your SJ Cabs application (${all[idx].refId}) was rejected. Reason: ${all[idx].rejectionReason||'See portal'}. Re-apply at sjcabs.com/captain.html`,
+      under_review:`Hi ${d.name}, your SJ Cabs Captain application (${all[idx].refId}) is now Under Review. We'll update you within 24-48 hours. — SJ Cabs Team`
+    };
+    if(msgs[newStatus]) window.open('https://wa.me/91'+mobile+'?text='+encodeURIComponent(msgs[newStatus]),'_blank');
+  }
+}
+
+/* ════════════════════════════════════
+   DRIVER PERFORMANCE
+════════════════════════════════════ */
+function renderPerformance(){
+  const all=getAllBookings();
+  const feedback=JSON.parse(localStorage.getItem('sjFeedback')||'[]');
+  const appraisals=JSON.parse(localStorage.getItem('sjAppraisals')||'[]');
+  // Scorecards
+  const cards=DRIVER_DATA.map(d=>{
+    const mine=all.filter(b=>b.driver&&b.driver.reg===d.reg);
+    const completed=mine.filter(b=>b.status==='completed');
+    const cancelled=mine.filter(b=>b.status==='cancelled');
+    const myFb=feedback.filter(f=>f.driverReg===d.reg);
+    const avgRating=myFb.length?+(myFb.reduce((s,f)=>s+(f.overall||0),0)/myFb.length).toFixed(1):null;
+    const earnings=completed.reduce((s,b)=>s+(b.fare||0),0);
+    const myAppr=appraisals.filter(a=>a.driverReg===d.reg).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const lastAppr=myAppr[0];
+    const trend=myAppr.length>=2?(myAppr[0].score>myAppr[1].score?'📈 Improving':myAppr[0].score<myAppr[1].score?'📉 Declining':'➡ Stable'):'—';
+    return `<div style="background:var(--card);border:1px solid var(--bw);border-radius:16px;padding:22px;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(255,184,0,.3)'" onmouseout="this.style.borderColor=''">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:46px;height:46px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:grid;place-items:center;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#000;flex-shrink:0">${d.init}</div>
+        <div>
+          <div style="font-weight:700;font-size:15px">${d.name}</div>
+          <div style="font-size:12px;color:var(--muted)">${d.reg}</div>
+          <div style="font-size:11px;color:var(--gold);margin-top:2px">${avgRating?'⭐ '+avgRating+' avg rating':' No ratings yet'}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:10px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--gold)">${completed.length}</div>
+          <div style="font-size:10px;color:var(--muted)">Completed</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:10px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--green)">₹${earnings.toLocaleString()}</div>
+          <div style="font-size:10px;color:var(--muted)">Total Earnings</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:10px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--red)">${cancelled.length}</div>
+          <div style="font-size:10px;color:var(--muted)">Cancelled</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:10px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#c084fc">${myFb.length}</div>
+          <div style="font-size:10px;color:var(--muted)">Reviews</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:9px;margin-bottom:10px">
+        <span style="font-size:12px;color:var(--muted)">Trend</span>
+        <span style="font-size:12px;font-weight:700">${trend}</span>
+      </div>
+      ${lastAppr?`<div style="font-size:11px;color:var(--muted);padding:8px;background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.12);border-radius:8px">Last appraisal: <strong style="color:var(--gold)">${lastAppr.score}/10</strong> on ${new Date(lastAppr.date).toLocaleDateString('en-IN')}</div>`:''}
+      <button class="action-btn primary" style="width:100%;margin-top:10px;padding:9px" onclick="openNewAppraisal('${d.reg}','${d.name}')">+ Add Appraisal</button>
+    </div>`;
+  }).join('');
+  document.getElementById('perfCards').innerHTML=cards;
+  // Appraisals table
+  renderAppraisalsTable();
+}
+
+function renderAppraisalsTable(){
+  const appraisals=JSON.parse(localStorage.getItem('sjAppraisals')||'[]');
+  const tbody=document.getElementById('appraisalBody');
+  if(!tbody)return;
+  if(!appraisals.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">No appraisals yet. Click "+ New Appraisal" to add one.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=appraisals.slice().reverse().map(a=>`<tr>
+    <td style="font-weight:600">${a.driverName}</td>
+    <td style="font-size:13px">${a.period}</td>
+    <td><span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:${a.score>=8?'#4ade80':a.score>=5?'#fbbf24':'#f87171'}">${a.score}/10</span></td>
+    <td style="font-size:12px;color:var(--muted);max-width:150px">${a.strengths||'—'}</td>
+    <td style="font-size:12px;color:var(--muted);max-width:150px">${a.improve||'—'}</td>
+    <td style="font-size:12px">${a.reviewer||'Admin'}</td>
+    <td style="font-size:12px">${new Date(a.date).toLocaleDateString('en-IN')}</td>
+  </tr>`).join('');
+}
+
+function openNewAppraisal(preReg,preName){
+  const driverOpts=DRIVER_DATA.map(d=>`<option value="${d.reg}" data-name="${d.name}" ${d.reg===preReg?'selected':''}>${d.name} — ${d.reg}</option>`).join('');
+  document.getElementById('detailBody').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:4px">📋 New Appraisal Record</div>
+      <div class="ff"><label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Driver</label>
+        <select id="apr-driver" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:11px;color:#fff;font-size:14px;outline:none;-webkit-appearance:none">${driverOpts}</select></div>
+      <div class="ff"><label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Appraisal Period</label>
+        <input type="text" id="apr-period" placeholder="e.g. Q1 2025, May 2025" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:11px;color:#fff;font-size:14px;outline:none"></div>
+      <div class="ff"><label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Performance Score (1–10)</label>
+        <input type="range" id="apr-score" min="1" max="10" value="7" oninput="document.getElementById('aprScoreVal').textContent=this.value+'/10'" style="width:100%;accent-color:var(--gold)">
+        <div style="text-align:center;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--gold);margin-top:4px" id="aprScoreVal">7/10</div></div>
+      <div class="ff"><label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Strengths</label>
+        <textarea id="apr-strengths" placeholder="What the driver does well..." style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:11px;color:#fff;font-size:13px;outline:none;resize:none;min-height:70px"></textarea></div>
+      <div class="ff"><label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Areas to Improve</label>
+        <textarea id="apr-improve" placeholder="What needs improvement..." style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:11px;color:#fff;font-size:13px;outline:none;resize:none;min-height:70px"></textarea></div>
+      <div class="ff"><label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Reviewer Notes</label>
+        <textarea id="apr-notes" placeholder="Internal notes for this appraisal..." style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:11px;color:#fff;font-size:13px;outline:none;resize:none;min-height:60px"></textarea></div>
+      <button onclick="saveAppraisal()" style="padding:13px;background:var(--gold);color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer">Save Appraisal Record</button>
+      <button onclick="closeDetailModal()" style="padding:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">Cancel</button>
+    </div>`;
+  document.getElementById('detailModal').classList.add('open');
+}
+function saveAppraisal(){
+  const sel=document.getElementById('apr-driver');
+  const reg=sel.value;
+  const name=sel.options[sel.selectedIndex].dataset.name||sel.options[sel.selectedIndex].text;
+  const period=document.getElementById('apr-period').value.trim();
+  const score=parseInt(document.getElementById('apr-score').value);
+  const strengths=document.getElementById('apr-strengths').value.trim();
+  const improve=document.getElementById('apr-improve').value.trim();
+  const notes=document.getElementById('apr-notes').value.trim();
+  if(!period){showToast('⚠ Please enter the appraisal period.');return;}
+  const appraisals=JSON.parse(localStorage.getItem('sjAppraisals')||'[]');
+  appraisals.push({id:'APR-'+Date.now(),driverReg:reg,driverName:name,period,score,strengths,improve,notes,reviewer:'Admin',date:new Date().toISOString()});
+  localStorage.setItem('sjAppraisals',JSON.stringify(appraisals));
+  closeDetailModal();
+  showToast('✅ Appraisal saved for '+name);
+  renderPerformance();
+}
+
+/* ════════════════════════════════════
+   CUSTOMER FEEDBACK
+════════════════════════════════════ */
+function renderFeedback(){
+  const all=JSON.parse(localStorage.getItem('sjFeedback')||'[]');
+  const driverF=(document.getElementById('fbDriverFilter')||{value:''}).value;
+  const ratingF=(document.getElementById('fbRatingFilter')||{value:''}).value;
+  const statusF=(document.getElementById('fbStatusFilter')||{value:''}).value;
+  let list=all;
+  if(driverF) list=list.filter(f=>f.driverName===driverF);
+  if(ratingF) list=list.filter(f=>String(f.overall)===ratingF);
+  if(statusF) list=list.filter(f=>(f.status||'new')===statusF);
+  // KPIs
+  const avgAll=all.length?+(all.reduce((s,f)=>s+(f.overall||0),0)/all.length).toFixed(1):0;
+  const newCount=all.filter(f=>!f.status||f.status==='new').length;
+  const flagged=all.filter(f=>f.status==='flagged').length;
+  const fbBadge=document.getElementById('feedbackBadge');
+  if(fbBadge){fbBadge.style.display=newCount>0?'inline':'none';fbBadge.textContent=newCount;}
+  const kpiEl=document.getElementById('fbKpis');
+  if(kpiEl) kpiEl.innerHTML=`
+    <div class="kpi"><div class="kpi-icon">⭐</div><div class="kpi-val">${avgAll}</div><div class="kpi-lbl">Overall Avg Rating</div></div>
+    <div class="kpi"><div class="kpi-icon">💬</div><div class="kpi-val">${all.length}</div><div class="kpi-lbl">Total Reviews</div></div>
+    <div class="kpi"><div class="kpi-icon">🆕</div><div class="kpi-val">${newCount}</div><div class="kpi-lbl">New (Unreviewed)</div></div>
+    <div class="kpi"><div class="kpi-icon">🚩</div><div class="kpi-val">${flagged}</div><div class="kpi-lbl">Flagged</div></div>`;
+  const container=document.getElementById('feedbackCards');
+  if(!container)return;
+  if(!list.length){
+    container.innerHTML='<div class="empty-state"><div class="es-icon">💬</div><div class="es-title">No feedback yet</div><div class="es-sub">Customer reviews will appear here after rides are completed and rated.</div></div>';
+    return;
+  }
+  container.innerHTML=list.slice().reverse().map(f=>{
+    const stars='⭐'.repeat(f.overall||0)+'☆'.repeat(5-(f.overall||0));
+    const date=new Date(f.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    const stColor={new:'rgba(59,130,246,.15)',reviewed:'rgba(34,197,94,.1)',flagged:'rgba(239,68,68,.1)'}[f.status||'new'];
+    const stTextColor={new:'#60a5fa',reviewed:'#4ade80',flagged:'#f87171'}[f.status||'new'];
+    return `<div style="background:var(--card);border:1px solid var(--bw);border-radius:14px;padding:18px 20px;margin-bottom:12px;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(255,184,0,.2)'" onmouseout="this.style.borderColor=''">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:16px">${stars}</span>
+            <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--gold)">${f.overall}/5</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${f.customerName||'Anonymous'} · ${date}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;background:${stColor};color:${stTextColor}">${(f.status||'new').charAt(0).toUpperCase()+(f.status||'new').slice(1)}</span>
+          <div class="td-actions">
+            <button class="td-btn edit" onclick="markFeedback('${f.id}','reviewed')">✓</button>
+            <button class="td-btn del" onclick="markFeedback('${f.id}','flagged')">🚩</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Driver</div>
+          <div style="font-size:13px;font-weight:700">${'⭐'.repeat(f.driverRating||0)} ${f.driverRating||'—'}/5</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Vehicle</div>
+          <div style="font-size:13px;font-weight:700">${'⭐'.repeat(f.vehicleRating||0)} ${f.vehicleRating||'—'}/5</div>
+        </div>
+        <div style="background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Overall</div>
+          <div style="font-size:13px;font-weight:700">${'⭐'.repeat(f.overall||0)} ${f.overall||'—'}/5</div>
+        </div>
+      </div>
+      ${f.comment?`<div style="font-size:13px;color:rgba(236,234,226,.75);line-height:1.7;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid rgba(255,184,0,.3)">"${f.comment}"</div>`:''}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px">
+        <div style="font-size:11px;color:var(--muted)">Driver: <strong style="color:var(--text)">${f.driverName||'—'}</strong> · Booking: <span style="font-family:monospace;color:var(--gold)">${f.bookingId||'—'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markFeedback(id,status){
+  const all=JSON.parse(localStorage.getItem('sjFeedback')||'[]');
+  const idx=all.findIndex(f=>f.id===id);
+  if(idx>=0){all[idx].status=status;localStorage.setItem('sjFeedback',JSON.stringify(all));}
+  renderFeedback();
+  showToast(status==='reviewed'?'✅ Marked as reviewed':'🚩 Feedback flagged');
+}
+
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+/* Auto-refresh every 10 sec */
+setInterval(()=>{if(document.getElementById('pgAdmin').style.display!=='none')refreshAll();},10000);
+
+/* ════════════════════════════════════════════════════════
+   CAPTAIN VERIFICATION WORKSPACE
+   Full side-panel with tabbed document review
+════════════════════════════════════════════════════════ */
+
+let vwsCaptain = null;         // currently open captain record
+let vwsChecks  = {};           // { sectionKey: 'ok'|'fail'|'hold'|null }
+let vwsInspection = {};        // { itemKey: 'ok'|'fail'|'na' }
+let vwsRemarks = {};           // { sectionKey: 'string' }
+
+const VWS_SECTIONS = ['overview','vehicle','rc','insurance','photos','driver','aadhaar','dl','pvc','decision'];
+
+// ── Open workspace ──
+function openVerification(refId) {
+  const all = JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  const c = all.find(x=>x.refId===refId);
+  if(!c) return;
+  vwsCaptain = c;
+  // Restore saved checks if any
+  vwsChecks    = c.vwsChecks    || {};
+  vwsInspection= c.vwsInspection|| {};
+  vwsRemarks   = c.vwsRemarks   || {};
+  // Build & open
+  buildVWS(c);
+  document.getElementById('vwsBackdrop').classList.add('open');
+  document.getElementById('vwsPanel').classList.add('open');
+  document.body.style.overflow='hidden';
+  switchVTab('overview');
+}
+
+function closeVWS() {
+  document.getElementById('vwsBackdrop').classList.remove('open');
+  document.getElementById('vwsPanel').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ── Build workspace content ──
+function buildVWS(c) {
+  const d = c.driver||{}, v = c.vehicle||{}, u = c.uploads||{}, ct = c.contact||{};
+  document.getElementById('vwsRefId').textContent = c.refId;
+  document.getElementById('vwsName').textContent  = d.name||'—';
+  document.getElementById('vwsVehicle').textContent = (v.mfr||'')+ ' '+(v.model||'')+' '+(v.variant||'');
+  // Status badge in header
+  const statusColors = {pending:'#fbbf24',approved:'#4ade80',rejected:'#f87171'};
+  const statusEl = document.getElementById('vwsStatusBadge');
+  statusEl.textContent = (c.status||'pending').charAt(0).toUpperCase()+(c.status||'pending').slice(1);
+  statusEl.style.color = statusColors[c.status]||'#fbbf24';
+  // Enable/disable approve button based on status
+  document.getElementById('vwsApproveBtn').disabled = c.status==='approved';
+  // Update progress checks
+  updateProgressBar();
+  // Populate each tab
+  buildOverviewTab(c);
+  buildVehicleTab(c);
+  buildRCTab(c);
+  buildInsuranceTab(c);
+  buildPhotosTab(c);
+  buildDriverTab(c);
+  buildAadhaarTab(c);
+  buildDLTab(c);
+  buildPVCTab(c);
+  buildDecisionTab(c);
+}
+
+function updateProgressBar() {
+  const sections = [
+    {key:'vehicle',label:'Vehicle'},
+    {key:'rc',label:'RC'},
+    {key:'insurance',label:'Insurance'},
+    {key:'photos',label:'Photos'},
+    {key:'driver',label:'Driver'},
+    {key:'aadhaar',label:'Aadhaar'},
+    {key:'dl',label:'DL'},
+    {key:'pvc',label:'PVC'},
+  ];
+  const bar = document.getElementById('vwsProgressBar');
+  bar.innerHTML = sections.map(s=>{
+    const st = vwsChecks[s.key];
+    const cls = st==='ok'?'done':st==='fail'?'fail':st==='hold'?'active':'pending';
+    const icon = st==='ok'?'✓':st==='fail'?'✗':st==='hold'?'⏸':'·';
+    return `<div class="vchk ${cls}" onclick="switchVTab('${s.key}')"><span class="vchk-dot"></span>${s.label} ${icon}</div>`;
+  }).join('');
+  // Overall score
+  const checked = Object.keys(vwsChecks).filter(k=>vwsChecks[k]).length;
+  const passed  = Object.keys(vwsChecks).filter(k=>vwsChecks[k]==='ok').length;
+  const score   = sections.length > 0 ? Math.round((passed/sections.length)*100) : 0;
+  const scoreEl = document.getElementById('vwsScore');
+  if(scoreEl){
+    scoreEl.textContent = score+'%';
+    scoreEl.style.color = score>=80?'#4ade80':score>=60?'#fbbf24':'#f87171';
+  }
+}
+
+function setCheck(key, val) {
+  vwsChecks[key] = val;
+  saveVWS();
+  updateProgressBar();
+  updateTabBadges();
+  document.querySelectorAll('[id^="vs_btn_'+key+'_"]').forEach(btn=>{
+    btn.classList.remove('active');
+  });
+  const activeBtn = document.getElementById('vs_btn_'+key+'_'+val);
+  if(activeBtn) activeBtn.classList.add('active');
+}
+
+function saveVWS() {
+  if(!vwsCaptain) return;
+  const all = JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  const idx = all.findIndex(c=>c.refId===vwsCaptain.refId);
+  if(idx>=0){
+    all[idx].vwsChecks     = vwsChecks;
+    all[idx].vwsInspection = vwsInspection;
+    all[idx].vwsRemarks    = vwsRemarks;
+    localStorage.setItem('sjCaptains', JSON.stringify(all));
+  }
+}
+
+function saveRemark(key) {
+  const el = document.getElementById('vrem_'+key);
+  if(!el) return;
+  vwsRemarks[key] = el.value;
+  saveVWS();
+  showToast('Remarks saved.');
+}
+
+function updateTabBadges() {
+  const tabMap = {vehicle:'tabVehicle',rc:'tabRC',insurance:'tabIns',photos:'tabPhotos',driver:'tabDriver',aadhaar:'tabAadhaar',dl:'tabDL',pvc:'tabPVC'};
+  Object.entries(tabMap).forEach(([key,tabId])=>{
+    const tab = document.getElementById(tabId);
+    if(!tab) return;
+    const badge = tab.querySelector('.vtab-badge');
+    if(!badge) return;
+    const st = vwsChecks[key];
+    badge.className = 'vtab-badge '+(st==='ok'?'ok':st==='fail'?'fail':st==='hold'?'warn':'');
+    badge.textContent = st==='ok'?'✓':st==='fail'?'✗':st==='hold'?'⏸':'';
+  });
+}
+
+// ── Tab switcher ──
+function switchVTab(tab) {
+  document.querySelectorAll('.vsec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));
+  const sec = document.getElementById('vsec_'+tab);
+  const tabEl = document.getElementById('vtab_'+tab);
+  if(sec) sec.classList.add('active');
+  if(tabEl) tabEl.classList.add('active');
+}
+
+// ── Check status buttons HTML ──
+function checkBtns(key) {
+  const st = vwsChecks[key];
+  return `<div class="vcheck-status">
+    <button class="vstatus-btn ok ${st==='ok'?'active':''}" id="vs_btn_${key}_ok" onclick="setCheck('${key}','ok')">✓ Pass</button>
+    <button class="vstatus-btn hold ${st==='hold'?'active':''}" id="vs_btn_${key}_hold" onclick="setCheck('${key}','hold')">⏸ Hold</button>
+    <button class="vstatus-btn fail ${st==='fail'?'active':''}" id="vs_btn_${key}_fail" onclick="setCheck('${key}','fail')">✗ Fail</button>
+  </div>`;
+}
+
+function remarkBox(key, placeholder) {
+  return `<div style="margin-top:12px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Reviewer Notes</div>
+    <textarea class="vremarks" id="vrem_${key}" placeholder="${placeholder||'Add notes, issues, or reasons...'}" oninput="vwsRemarks['${key}']=this.value;saveVWS()">${vwsRemarks[key]||''}</textarea>
+  </div>`;
+}
+
+function docImg(uploadKey, label, uploads) {
+  const info = uploads&&uploads[uploadKey];
+  if(!info) return `<div class="doc-img-wrap"><div class="doc-placeholder"><div class="dp-icon">📄</div><div>${label}</div><div style="font-size:10px">Not uploaded</div></div><div class="doc-img-label">${label}</div></div>`;
+  return `<div class="doc-img-wrap" onclick="openLightbox('placeholder_${uploadKey}','${label}')">
+    <div class="doc-placeholder" style="height:140px"><div class="dp-icon">📎</div><div style="font-size:12px;font-weight:600">${label}</div><div style="font-size:10px;color:var(--muted)">${info}</div><div style="font-size:10px;color:#4ade80;margin-top:4px">✓ Uploaded</div></div>
+    <div class="doc-img-label">${label} <span class="doc-img-zoom" title="View">🔍</span></div>
+  </div>`;
+}
+
+function infoRow(label,val,cls='') {
+  return `<div class="vinfo-item"><div class="vinfo-label">${label}</div><div class="vinfo-val ${cls}">${val||'—'}</div></div>`;
+}
+
+// ── TAB BUILDERS ──
+function buildOverviewTab(c) {
+  const d=c.driver||{},v=c.vehicle||{},ct=c.contact||{};
+  const submitted = new Date(c.submittedAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const docsTotal  = Object.keys(c.uploads||{}).length;
+  const required   = ['rc-front','rc-back','insurance','veh-front','veh-right','veh-left','veh-rear','aadhaar-front','aadhaar-back','dl-front','dl-back','pvc'];
+  const docsOk     = required.filter(k=>c.uploads&&c.uploads[k]).length;
+  const passed     = Object.values(vwsChecks).filter(v=>v==='ok').length;
+  const failed     = Object.values(vwsChecks).filter(v=>v==='fail').length;
+  document.getElementById('vsec_overview').innerHTML = `
+    <div class="score-bar">
+      <div class="score-row">
+        <div>
+          <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Verification Progress</div>
+          <div style="display:flex;align-items:baseline;gap:8px">
+            <div class="score-val" id="vwsScore" style="color:${passed>=6?'#4ade80':passed>=3?'#fbbf24':'#f87171'}">${Math.round((passed/8)*100)}%</div>
+            <div class="score-label">${passed}/8 sections verified</div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="score-track"><div class="score-fill" style="width:${Math.round((passed/8)*100)}%;background:${passed>=6?'#4ade80':passed>=3?'#fbbf24':'#f87171'}"></div></div>
+        </div>
+      </div>
+      <div class="score-checks">
+        <div class="sc-chip" style="background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)">✓ ${passed} Passed</div>
+        <div class="sc-chip" style="background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)">✗ ${failed} Failed</div>
+        <div class="sc-chip" style="background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--bw)">⏳ ${8-passed-failed} Pending</div>
+        <div class="sc-chip" style="background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.2)">📎 ${docsOk}/${required.length} Docs</div>
+      </div>
+    </div>
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">👤 Applicant Summary</div>
+        <span class="vstamp ${c.status==='approved'?'approved':c.status==='rejected'?'rejected':'pending'}">${(c.status||'pending').toUpperCase()}</span>
+      </div>
+      <div class="vcheck-body">
+        <div class="vinfo-grid">
+          ${infoRow('Driver Name',d.name,'gold')}
+          ${infoRow('Mobile',ct.mobile)}
+          ${infoRow('Submitted',submitted)}
+          ${infoRow('Ref ID',c.refId,'mono')}
+          ${infoRow('Vehicle',`${v.mfr} ${v.model}`)}
+          ${infoRow('Reg. No.',v.regno,'mono gold')}
+          ${infoRow('Mfg. Year',v.mfrYear)}
+          ${infoRow('Purchased',v.dop)}
+          ${infoRow('Fuel',v.fuel)}
+          ${infoRow('DL No.',d.dlno,'mono')}
+          ${infoRow('DL Expiry',d.dlexp, new Date(d.dlexp)<new Date()?'red':'green')}
+          ${infoRow('PVC Date',d.pvcdate)}
+        </div>
+        <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:12px 14px;font-size:13px;color:rgba(236,234,226,.7);line-height:1.7">
+          📋 Use the tabs above to review each section individually. Mark each section as <strong style="color:#4ade80">Pass</strong>, <strong style="color:#f87171">Fail</strong> or <strong style="color:#fbbf24">Hold</strong>. Once all sections are reviewed, go to <strong style="color:var(--gold)">Decision</strong> to approve or reject.
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildVehicleTab(c) {
+  const v = c.vehicle||{};
+  const dop = v.dop ? new Date(v.dop) : null;
+  const twoYearsAgo = new Date(); twoYearsAgo.setFullYear(twoYearsAgo.getFullYear()-2);
+  const dopOk = dop && dop >= twoYearsAgo;
+  document.getElementById('vsec_vehicle').innerHTML = `
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">🚗 Vehicle Information</div>${checkBtns('vehicle')}</div>
+      <div class="vcheck-body">
+        <div class="vinfo-grid">
+          ${infoRow('Manufacturer',v.mfr)}
+          ${infoRow('Model',v.model)}
+          ${infoRow('Variant',v.variant)}
+          ${infoRow('Fuel Type',v.fuel)}
+          ${infoRow('Mfg. Year',v.mfrYear)}
+          ${infoRow('Date of Purchase',v.dop)}
+          ${infoRow('Purchase Valid',dopOk?'✓ Within 2 years':'✗ Older than 2 years — INELIGIBLE',dopOk?'green':'red')}
+          ${infoRow('Registration No.',v.regno,'mono gold')}
+          ${infoRow('Colour',v.colour)}
+          ${infoRow('Seating Capacity',v.seats+' passengers')}
+          ${infoRow('Air Conditioning',v.ac==='yes'?'Yes ✓':'No')}
+        </div>
+        <div style="background:${dopOk?'rgba(34,197,94,.06)':'rgba(239,68,68,.08)'};border:1px solid ${dopOk?'rgba(34,197,94,.2)':'rgba(239,68,68,.25)'};border-radius:10px;padding:12px 14px;font-size:13px;color:${dopOk?'#4ade80':'#f87171'};line-height:1.65;margin-bottom:14px">
+          ${dopOk ? '✓ Vehicle purchase date is within the 2-year eligibility window.' : '⚠ Vehicle was purchased more than 2 years ago. This vehicle does NOT meet the eligibility criteria. Please mark as Fail.'}
+        </div>
+        ${remarkBox('vehicle','Note any issues with vehicle information...')}
+      </div>
+    </div>`;
+}
+
+function buildRCTab(c) {
+  const u = c.uploads||{};
+  document.getElementById('vsec_rc').innerHTML = `
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">📋 RC — Registration Certificate</div>${checkBtns('rc')}</div>
+      <div class="vcheck-body">
+        <div class="doc-viewer">
+          ${docImg('rc-front','RC Front Side',u)}
+          ${docImg('rc-back','RC Back Side',u)}
+        </div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Verification Checklist</div>
+        <div class="inspection-list">
+          ${inspItem('rc_owner','Owner name matches driver application')}
+          ${inspItem('rc_regno','Reg. number matches stated number')}
+          ${inspItem('rc_class','Vehicle class is commercial / LMV')}
+          ${inspItem('rc_valid','RC validity is current (not expired)')}
+          ${inspItem('rc_match','Vehicle make/model matches application')}
+        </div>
+        ${remarkBox('rc','Note RC issues — name mismatch, expired, unclear scan...')}
+      </div>
+    </div>`;
+  renderInspItems();
+}
+
+function buildInsuranceTab(c) {
+  const u = c.uploads||{};
+  document.getElementById('vsec_insurance').innerHTML = `
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">🛡️ Insurance & Tax Documents</div>${checkBtns('insurance')}</div>
+      <div class="vcheck-body">
+        <div class="doc-viewer">
+          ${docImg('insurance','Insurance Certificate',u)}
+          ${docImg('tax','Road Tax Receipt',u)}
+          ${docImg('fitness','Fitness Certificate',u)}
+          ${docImg('permit','Commercial Permit',u)}
+        </div>
+        <div class="inspection-list" style="margin-top:14px">
+          ${inspItem('ins_valid','Insurance is currently valid (not expired)')}
+          ${inspItem('ins_commercial','Policy covers commercial use')}
+          ${inspItem('ins_vehicle','Vehicle reg. on policy matches application')}
+          ${inspItem('tax_valid','Road tax is paid and current')}
+          ${inspItem('permit_valid','Commercial permit is valid (if applicable)')}
+        </div>
+        ${remarkBox('insurance','Note insurance/tax issues...')}
+      </div>
+    </div>`;
+  renderInspItems();
+}
+
+function buildPhotosTab(c) {
+  const u = c.uploads||{};
+  document.getElementById('vsec_photos').innerHTML = `
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">📷 Vehicle Photos — Inspection</div>${checkBtns('photos')}</div>
+      <div class="vcheck-body">
+        <div class="doc-viewer">
+          ${docImg('veh-front','Front View',u)}
+          ${docImg('veh-right','Right Side',u)}
+          ${docImg('veh-left','Left Side',u)}
+          ${docImg('veh-rear','Rear View',u)}
+          ${docImg('veh-interior','Interior',u)}
+        </div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:14px 0 10px">Physical Inspection Checklist</div>
+        <div class="inspection-list">
+          ${inspItem('ph_clean','Vehicle is clean and presentable')}
+          ${inspItem('ph_dents','No major dents or body damage')}
+          ${inspItem('ph_plate','Number plate is clearly visible in front & rear')}
+          ${inspItem('ph_tyres','Tyres appear in good condition')}
+          ${inspItem('ph_glass','Windshield and windows are undamaged')}
+          ${inspItem('ph_interior','Interior is clean — seats, floor, dashboard')}
+          ${inspItem('ph_ac','AC unit visible / mentioned as working')}
+          ${inspItem('ph_colour','Vehicle colour matches RC declaration')}
+          ${inspItem('ph_model','Make and model visually confirmed')}
+        </div>
+        ${remarkBox('photos','Note any visible damage, cleanliness issues, mismatched details...')}
+      </div>
+    </div>`;
+  renderInspItems();
+}
+
+function buildDriverTab(c) {
+  const d = c.driver||{};
+  const dob = d.dob ? new Date(d.dob) : null;
+  const age = dob ? Math.floor((Date.now()-dob)/(365.25*24*3600*1000)) : '—';
+  document.getElementById('vsec_driver').innerHTML = `
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">🧑‍✈️ Driver Personal Details</div>${checkBtns('driver')}</div>
+      <div class="vcheck-body">
+        <div class="vinfo-grid">
+          ${infoRow('Full Name',d.name,'gold')}
+          ${infoRow('Date of Birth',d.dob)}
+          ${infoRow('Age',age+' years', typeof age==='number'&&age>=18&&age<=65?'green':typeof age==='number'?'red':'')}
+          ${infoRow('Aadhaar No.',d.aadhaar?d.aadhaar.replace(/\d(?=\d{4})/g,'*'):'—')}
+          ${infoRow('Address',d.address||'—')}
+          ${infoRow('City',d.city)}
+          ${infoRow('PIN Code',d.pin)}
+        </div>
+        <div class="inspection-list" style="margin-top:4px">
+          ${inspItem('drv_age','Driver age is between 18 and 65 years')}
+          ${inspItem('drv_name','Name consistent across all documents')}
+          ${inspItem('drv_addr','Address is complete and readable')}
+        </div>
+        ${remarkBox('driver','Note any discrepancies in personal details...')}
+      </div>
+    </div>`;
+  renderInspItems();
+}
+
+function buildAadhaarTab(c) {
+  const d = c.driver||{}, u = c.uploads||{};
+  document.getElementById('vsec_aadhaar').innerHTML = `
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">🪪 Aadhaar Card Verification</div>${checkBtns('aadhaar')}</div>
+      <div class="vcheck-body">
+        <div class="doc-viewer">
+          ${docImg('aadhaar-front','Aadhaar Front',u)}
+          ${docImg('aadhaar-back','Aadhaar Back',u)}
+        </div>
+        <div class="vinfo-grid" style="margin-top:14px">
+          ${infoRow('Declared Aadhaar',d.aadhaar?d.aadhaar.replace(/\d(?=\d{4})/g,'*'):'—','mono')}
+          ${infoRow('Driver Name',d.name)}
+          ${infoRow('DOB on Application',d.dob)}
+        </div>
+        <div class="inspection-list" style="margin-top:4px">
+          ${inspItem('aadh_clear','Aadhaar number is clearly visible')}
+          ${inspItem('aadh_name','Name on Aadhaar matches application')}
+          ${inspItem('aadh_dob','DOB on Aadhaar matches application')}
+          ${inspItem('aadh_addr','Address on Aadhaar is readable')}
+          ${inspItem('aadh_photo','Photo on Aadhaar is clear')}
+          ${inspItem('aadh_genuine','Document appears genuine (no tampering)')}
+        </div>
+        ${remarkBox('aadhaar','Note Aadhaar verification issues...')}
+      </div>
+    </div>`;
+  renderInspItems();
+}
+
+function buildDLTab(c) {
+  const d = c.driver||{}, u = c.uploads||{};
+  const dlExp = d.dlexp ? new Date(d.dlexp) : null;
+  const dlValid = dlExp && dlExp > new Date();
+  const daysLeft = dlExp ? Math.floor((dlExp-new Date())/(24*3600*1000)) : 0;
+  document.getElementById('vsec_dl').innerHTML = `
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">🚘 Driving Licence Verification</div>${checkBtns('dl')}</div>
+      <div class="vcheck-body">
+        <div class="doc-viewer">
+          ${docImg('dl-front','DL Front Side',u)}
+          ${docImg('dl-back','DL Back Side',u)}
+        </div>
+        <div class="vinfo-grid" style="margin-top:14px">
+          ${infoRow('DL Number',d.dlno,'mono gold')}
+          ${infoRow('Expiry Date',d.dlexp)}
+          ${infoRow('Validity',dlValid?`Valid — ${daysLeft} days remaining`:'EXPIRED',dlValid?'green':'red')}
+        </div>
+
+        <!-- DL Verification Tool -->
+        <div class="dl-check-tool">
+          <div class="dl-check-title">🔍 Cross-check DL Details</div>
+          <div style="font-size:12px;color:rgba(148,163,184,.7);margin-bottom:12px;line-height:1.6">
+            Verify the licence by cross-referencing with <strong style="color:#60a5fa">Sarathi Parivahan</strong> or <strong style="color:#60a5fa">mParivahan</strong>. Enter the details from the uploaded DL document and compare with what the driver declared.
+          </div>
+          <div class="dl-check-grid">
+            <div class="dl-field"><label>DL No. (from document)</label><input type="text" id="dl_verify_no" placeholder="e.g. MH12XXXXXXXXXX" value="${d.dlno||''}"></div>
+            <div class="dl-field"><label>Name (from document)</label><input type="text" id="dl_verify_name" placeholder="As on DL" value="${d.name||''}"></div>
+            <div class="dl-field"><label>DOB (from document)</label><input type="date" id="dl_verify_dob" value="${d.dob||''}"></div>
+            <div class="dl-field"><label>Expiry (from document)</label><input type="date" id="dl_verify_exp" value="${d.dlexp||''}"></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="dl-verify-btn" onclick="runDLCheck()">🔍 Run Cross-Check</button>
+            <a href="https://sarathi.parivahan.gov.in/" target="_blank" style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">🌐 Open Sarathi Portal</a>
+            <a href="https://mparivahan.in/" target="_blank" style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">📱 mParivahan</a>
+          </div>
+          <div class="dl-result" id="dlCheckResult"></div>
+        </div>
+
+        <div class="inspection-list">
+          ${inspItem('dl_clear','DL number clearly visible on document')}
+          ${inspItem('dl_name','Name on DL matches application')}
+          ${inspItem('dl_dob','DOB on DL matches application')}
+          ${inspItem('dl_class','Licence includes LMV-TR / Transport endorsement')}
+          ${inspItem('dl_valid','DL is not expired')}
+          ${inspItem('dl_genuine','Document appears genuine (no tampering)')}
+        </div>
+        ${remarkBox('dl','Note DL verification findings...')}
+      </div>
+    </div>`;
+  renderInspItems();
+}
+
+function runDLCheck() {
+  const no   = document.getElementById('dl_verify_no').value.trim();
+  const name = document.getElementById('dl_verify_name').value.trim();
+  const dob  = document.getElementById('dl_verify_dob').value;
+  const exp  = document.getElementById('dl_verify_exp').value;
+  const d    = vwsCaptain&&vwsCaptain.driver||{};
+  const res  = document.getElementById('dlCheckResult');
+  const issues = [];
+  if(no&&d.dlno&&no.replace(/\s/g,'').toUpperCase()!==d.dlno.replace(/\s/g,'').toUpperCase()) issues.push('DL number mismatch: declared <strong>'+d.dlno+'</strong> vs document <strong>'+no+'</strong>');
+  if(name&&d.name&&name.trim().toLowerCase()!==d.name.trim().toLowerCase()) issues.push('Name mismatch: declared <strong>'+d.name+'</strong> vs document <strong>'+name+'</strong>');
+  if(dob&&d.dob&&dob!==d.dob) issues.push('DOB mismatch: declared <strong>'+d.dob+'</strong> vs document <strong>'+dob+'</strong>');
+  if(exp&&d.dlexp&&exp!==d.dlexp) issues.push('Expiry mismatch: declared <strong>'+d.dlexp+'</strong> vs document <strong>'+exp+'</strong>');
+  if(exp&&new Date(exp)<new Date()) issues.push('⚠ Licence appears EXPIRED as of today');
+  res.classList.add('show');
+  if(!issues.length){
+    res.className='dl-result show pass';
+    res.innerHTML='<div style="font-weight:700;color:#4ade80;margin-bottom:6px">✓ All cross-checked fields match</div><div style="font-size:12px;color:rgba(74,222,128,.7)">No discrepancies found between declared details and document details. Proceed to verify on Sarathi Parivahan for final confirmation.</div>';
+  } else {
+    res.className='dl-result show fail';
+    res.innerHTML='<div style="font-weight:700;color:#f87171;margin-bottom:8px">⚠ '+issues.length+' discrepancy/ies found</div><ul style="list-style:none;display:flex;flex-direction:column;gap:6px">'+issues.map(i=>'<li style="font-size:12px;color:#fca5a5;display:flex;gap:6px;line-height:1.5"><span style="flex-shrink:0">•</span><span>'+i+'</span></li>').join('')+'</ul>';
+  }
+}
+
+function buildPVCTab(c) {
+  const d = c.driver||{}, u = c.uploads||{};
+  const pvcDate = d.pvcdate ? new Date(d.pvcdate) : null;
+  const sixMonths = new Date(); sixMonths.setMonth(sixMonths.getMonth()-6);
+  const pvcOk = pvcDate && pvcDate >= sixMonths;
+  const pvcAge = pvcDate ? Math.floor((new Date()-pvcDate)/(24*3600*1000)) : '—';
+  document.getElementById('vsec_pvc').innerHTML = `
+    <div class="vcheck-card">
+      <div class="vcheck-head"><div class="vcheck-title">👮 Police Verification Certificate</div>${checkBtns('pvc')}</div>
+      <div class="vcheck-body">
+        <div class="doc-viewer">
+          ${docImg('pvc','Police Verification Certificate',u)}
+        </div>
+        <div class="vinfo-grid" style="margin-top:14px">
+          ${infoRow('Issue Date',d.pvcdate)}
+          ${infoRow('Certificate Age',pvcAge+' days old',pvcOk?'green':'red')}
+          ${infoRow('6-Month Validity',pvcOk?'✓ Valid':'✗ EXPIRED — Older than 6 months',pvcOk?'green':'red')}
+          ${infoRow('Issuing Station',d.pvcstn||'—')}
+        </div>
+        <div style="background:${pvcOk?'rgba(34,197,94,.06)':'rgba(239,68,68,.08)'};border:1px solid ${pvcOk?'rgba(34,197,94,.2)':'rgba(239,68,68,.3)'};border-radius:10px;padding:12px 14px;font-size:13px;color:${pvcOk?'#4ade80':'#f87171'};line-height:1.65;margin-bottom:14px">
+          ${pvcOk ? '✓ PVC is within the 6-month validity window.' : '✗ This Police Verification Certificate is more than 6 months old. The driver must obtain a fresh certificate before approval.'}
+        </div>
+        <div class="inspection-list">
+          ${inspItem('pvc_genuine','Certificate appears genuine and unaltered')}
+          ${inspItem('pvc_name','Name on certificate matches driver name')}
+          ${inspItem('pvc_date','Issue date is clearly mentioned')}
+          ${inspItem('pvc_station','Issuing police station details present')}
+          ${inspItem('pvc_clear','No adverse remarks or criminal records noted')}
+        </div>
+        ${remarkBox('pvc','Note PVC verification findings...')}
+      </div>
+    </div>`;
+  renderInspItems();
+}
+
+function buildDecisionTab(c) {
+  const passed = Object.values(vwsChecks).filter(v=>v==='ok').length;
+  const failed  = Object.values(vwsChecks).filter(v=>v==='fail').length;
+  const pending = 8-passed-failed;
+  const canApprove = failed===0 && pending===0;
+  const d = c.driver||{}, v = c.vehicle||{}, ct = c.contact||{};
+  const waApprove = encodeURIComponent(`Hi ${d.name}! 🎉\n\nYour SJ Cabs Captain application (${c.refId}) has been APPROVED!\n\nVehicle: ${v.mfr} ${v.model} ${v.variant}\nReg No: ${v.regno}\n\nWelcome to the SJ Cabs family! Our team will contact you within 24 hours to complete the onboarding and explain the platform, payment structure and trip assignment process.\n\nFor queries: +91 70576 91597\n— SJ Cabs Team`);
+  const waReject  = encodeURIComponent(`Hi ${d.name},\n\nThank you for applying to be a SJ Cabs Captain (Ref: ${c.refId}).\n\nAfter reviewing your application, we regret to inform you that we are unable to approve your registration at this time.\n\nReason: ${vwsRemarks['decision']||'Documents did not meet our verification requirements.'}\n\nYou are welcome to re-apply after addressing the issues. For assistance: +91 70576 91597\n— SJ Cabs Team`);
+  const mobile = ct.mobile?ct.mobile.replace(/\D/g,'').slice(-10):'';
+  document.getElementById('vsec_decision').innerHTML = `
+    <div class="score-bar" style="margin-bottom:16px">
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:14px">📊 Verification Summary</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:14px">
+          <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#4ade80">${passed}</div>
+          <div style="font-size:11px;color:var(--muted)">Sections Passed</div>
+        </div>
+        <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px">
+          <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#f87171">${failed}</div>
+          <div style="font-size:11px;color:var(--muted)">Sections Failed</div>
+        </div>
+        <div style="background:rgba(255,255,255,.04);border:1px solid var(--bw);border-radius:10px;padding:14px">
+          <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--muted)">${pending}</div>
+          <div style="font-size:11px;color:var(--muted)">Not Reviewed</div>
+        </div>
+      </div>
+      ${!canApprove?`<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13px;color:#f87171;line-height:1.65">${failed>0?'⚠ '+failed+' section(s) failed. Approval blocked until failures are resolved.':'⏳ '+pending+' section(s) still pending review. Complete all sections before approving.'}</div>`:''}
+      ${canApprove?`<div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13px;color:#4ade80;line-height:1.65">✓ All sections verified and passed. Application is ready for approval.</div>`:''}
+    </div>
+    <div class="decision-panel">
+      <div class="dp-title">📋 Final Decision</div>
+      <div class="ff" style="margin-bottom:0">
+        <label style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Decision Notes / Reason (required for rejection)</label>
+        <textarea class="vremarks" id="vrem_decision" placeholder="Add final notes, conditions, or rejection reason..." oninput="vwsRemarks['decision']=this.value;saveVWS()">${vwsRemarks['decision']||''}</textarea>
+      </div>
+      <div class="dp-btns">
+        <button class="dp-approve" id="dpApproveBtn" onclick="finalDecision('approved')" ${canApprove?'':'disabled style="opacity:.4;cursor:not-allowed"'}>
+          ✓ Approve Captain
+        </button>
+        <button class="dp-reject" onclick="finalDecision('rejected')">
+          ✗ Reject Application
+        </button>
+        <button class="dp-hold" onclick="finalDecision('hold')">
+          ⏸ Put on Hold — Request Resubmission
+        </button>
+        <a class="dp-wa" href="https://wa.me/91${mobile}?text=${canApprove?waApprove:waReject}" target="_blank">
+          <svg width="16" height="16" viewBox="0 0 32 32" fill="none"><path d="M16 3C8.82 3 3 8.82 3 16c0 2.3.62 4.52 1.8 6.46L3 29l6.7-1.76A13 13 0 0016 29c7.18 0 13-5.82 13-13S23.18 3 16 3z" fill="white"/><path d="M21.5 18.9c-.3-.15-1.76-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-1 1.2-.18.2-.36.22-.66.07a8.3 8.3 0 01-2.43-1.5 9.2 9.2 0 01-1.68-2.1c-.18-.3 0-.47.14-.62.12-.13.3-.34.45-.52.14-.18.19-.3.29-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.5-.5-.67-.51-.17 0-.37-.02-.57-.02-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.1 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.76-.72 2-1.41.26-.7.26-1.3.18-1.42-.07-.12-.27-.2-.57-.35z" fill="#0D0F18"/></svg>
+          Send WhatsApp Notification to Driver
+        </a>
+      </div>
+    </div>`;
+}
+
+function finalDecision(decision) {
+  if(decision==='rejected'&&!vwsRemarks['decision']){showToast('⚠ Please add a rejection reason in the notes field.');return;}
+  if(decision==='approved'){
+    const failed=Object.values(vwsChecks).filter(v=>v==='fail').length;
+    const pending=8-Object.keys(vwsChecks).filter(k=>vwsChecks[k]).length;
+    if(failed>0){showToast('⚠ Cannot approve — '+failed+' section(s) failed.');return;}
+    if(pending>0){showToast('⚠ Cannot approve — '+pending+' section(s) not reviewed yet.');return;}
+  }
+  const statusMap={approved:'approved',rejected:'rejected',hold:'pending'};
+  updateCaptainStatus(vwsCaptain.refId, statusMap[decision]||decision, vwsRemarks['decision']);
+  const msg={approved:'✅ Application approved! Send WhatsApp notification to driver.',rejected:'Application rejected. Driver notified.',hold:'Application put on hold. Driver will need to resubmit.'};
+  showToast(msg[decision]||'Status updated.');
+  closeVWS();
+  buildDecisionTab(vwsCaptain);
+}
+
+// ── Inspection item builder ──
+function inspItem(key, label) {
+  const st = vwsInspection[key];
+  return `<div class="insp-item">
+    <div class="insp-label">${label}</div>
+    <div class="insp-btns">
+      <button class="insp-btn ok ${st==='ok'?'active':''}" title="Pass" onclick="setInsp('${key}','ok')">✓</button>
+      <button class="insp-btn fail ${st==='fail'?'active':''}" title="Fail" onclick="setInsp('${key}','fail')">✗</button>
+      <button class="insp-btn na ${st==='na'?'active':''}" title="N/A" onclick="setInsp('${key}','na')">—</button>
+    </div>
+  </div>`;
+}
+function renderInspItems(){}
+
+function setInsp(key, val) {
+  vwsInspection[key] = val;
+  const btns = document.querySelectorAll(`[onclick*="setInsp('${key}'"]`);
+  btns.forEach(btn=>{
+    btn.classList.remove('active');
+    if(btn.getAttribute('onclick').includes("'"+val+"'")) btn.classList.add('active');
+  });
+  saveVWS();
+}
+
+// ── Lightbox ──
+function openLightbox(src, label) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  const lbl = document.getElementById('lightboxLabel');
+  // Since we don't have real file URLs (localStorage only stores filenames),
+  // show a placeholder note
+  img.src = '';
+  img.style.display='none';
+  lbl.textContent = label + ' — File preview available after server integration';
+  document.getElementById('lightboxNote').style.display='flex';
+  lb.classList.add('open');
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+
+// ── Override old viewCaptain to use new workspace ──
+function viewCaptain(refId){openVerification(refId);}
+
+<!-- ═══════════════════════════════════════════════
+     CAPTAIN VERIFICATION WORKSPACE PANEL
+═══════════════════════════════════════════════ -->
+<div class="vws-backdrop" id="vwsBackdrop" onclick="closeVWS()"></div>
+<div class="vws-panel" id="vwsPanel">
+  <!-- Workspace Header -->
+  <div class="vws-head">
+    <button class="vws-back" onclick="closeVWS()">←</button>
+    <div class="vws-head-info">
+      <div class="vws-refid" id="vwsRefId">SJCAP-—</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="vws-name" id="vwsName">—</div>
+        <span id="vwsStatusBadge" style="font-size:11px;font-weight:700;padding:2px 9px;background:rgba(255,255,255,.06);border-radius:100px;flex-shrink:0">Pending</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:1px" id="vwsVehicle"></div>
+    </div>
+    <div class="vws-head-actions">
+      <button class="vws-btn-hold" onclick="finalDecision('hold')">⏸ Hold</button>
+      <button class="vws-btn-reject" onclick="finalDecision('rejected')">✗ Reject</button>
+      <button class="vws-btn-approve" id="vwsApproveBtn" onclick="finalDecision('approved')">✓ Approve</button>
+    </div>
+  </div>
+
+  <!-- Verification Progress Bar -->
+  <div class="vws-progress" id="vwsProgressBar"></div>
+
+  <!-- Tab Bar -->
+  <div class="vws-tabs">
+    <button class="vtab active" id="vtab_overview"  onclick="switchVTab('overview')">📊 Overview</button>
+    <button class="vtab" id="vtab_vehicle"   onclick="switchVTab('vehicle')">🚗 Vehicle <span class="vtab-badge"></span></button>
+    <button class="vtab" id="vtab_rc"        onclick="switchVTab('rc')">📋 RC <span class="vtab-badge"></span></button>
+    <button class="vtab" id="vtab_insurance" onclick="switchVTab('insurance')" id="tabIns">🛡️ Insurance <span class="vtab-badge"></span></button>
+    <button class="vtab" id="vtab_photos"    onclick="switchVTab('photos')">📷 Photos <span class="vtab-badge"></span></button>
+    <button class="vtab" id="vtab_driver"    onclick="switchVTab('driver')">🧑‍✈️ Driver <span class="vtab-badge"></span></button>
+    <button class="vtab" id="vtab_aadhaar"   onclick="switchVTab('aadhaar')">🪪 Aadhaar <span class="vtab-badge"></span></button>
+    <button class="vtab" id="vtab_dl"        onclick="switchVTab('dl')">🚘 DL <span class="vtab-badge"></span></button>
+    <button class="vtab" id="vtab_pvc"       onclick="switchVTab('pvc')">👮 PVC <span class="vtab-badge"></span></button>
+    <button class="vtab" id="vtab_decision"  onclick="switchVTab('decision')">📋 Decision</button>
+  </div>
+
+  <!-- Workspace Body -->
+  <div class="vws-body">
+    <div class="vsec active" id="vsec_overview"></div>
+    <div class="vsec" id="vsec_vehicle"></div>
+    <div class="vsec" id="vsec_rc"></div>
+    <div class="vsec" id="vsec_insurance"></div>
+    <div class="vsec" id="vsec_photos"></div>
+    <div class="vsec" id="vsec_driver"></div>
+    <div class="vsec" id="vsec_aadhaar"></div>
+    <div class="vsec" id="vsec_dl"></div>
+    <div class="vsec" id="vsec_pvc"></div>
+    <div class="vsec" id="vsec_decision"></div>
+  </div>
+</div>
+
+<!-- IMAGE LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+  <div id="lightboxNote" style="display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;max-width:400px">
+    <div style="font-size:48px">🔒</div>
+    <div style="font-size:15px;font-weight:700;color:#fff">Document Preview</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.75">Document files are stored on the captain's device during demo mode. Once connected to a backend server, uploaded documents will be viewable here in full resolution.</div>
+  </div>
+  <div class="lightbox-label" id="lightboxLabel"></div>
+</div>
+</body>
+</html>

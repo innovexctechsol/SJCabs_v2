@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SJ Cabs — Captain Registration Status</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#FFB800;--gold2:#FF7A00;--dark:#07080D;--card:#0D0F18;--card2:#111420;--border:rgba(255,184,0,.15);--bw:rgba(255,255,255,.07);--text:#ECEAE2;--muted:#5C5C72;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--orange:#f97316}
+html{scroll-behavior:smooth}
+body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--dark)}::-webkit-scrollbar-thumb{background:rgba(255,184,0,.25);border-radius:3px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:900;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,8,13,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+@media(min-width:768px){nav{padding:0 40px}}
+.nlogo{text-decoration:none}
+.nlogo svg{height:24px;width:auto}
+.nav-links{display:flex;align-items:center;gap:12px}
+.nav-link{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s}
+.nav-link:hover{color:#fff}
+.nav-link.active{color:var(--gold)}
+
+/* PAGE WRAP */
+.page{min-height:100vh;padding:80px 20px 48px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:radial-gradient(ellipse at 50% 0%,#0e1120 0%,var(--dark) 60%)}
+@media(min-width:768px){.page{padding:88px 40px 56px}}
+.page-inner{width:100%;max-width:560px}
+
+/* LOGIN CARD */
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:fadeUp .5s ease}
+.lc-top{padding:32px 32px 22px;text-align:center;border-bottom:1px solid var(--bw)}
+.lc-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.25);border-radius:100px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.lc-badge span{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 1.8s infinite}
+.lc-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px}
+.lc-sub{color:var(--muted);font-size:13px;line-height:1.6}
+.lc-body{padding:28px 32px 32px;display:flex;flex-direction:column;gap:16px}
+.lf label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.lf input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:13px 15px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:all .2s}
+.lf input:focus{border-color:rgba(255,184,0,.5);box-shadow:0 0 0 3px rgba(255,184,0,.07);background:rgba(255,184,0,.03)}
+.lf input::placeholder{color:rgba(255,255,255,.22)}
+.otp-row{display:flex;gap:10px}
+.otp-row input{flex:1;text-align:center;font-size:22px;font-weight:800;letter-spacing:4px;padding:13px 5px}
+.lerr{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;display:none}
+.lerr.show{display:block}
+.lhint{font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
+.lhint strong{color:var(--gold)}
+.ldots{display:flex;justify-content:center;gap:6px}
+.ldot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.14);transition:all .3s}
+.ldot.active{background:var(--gold);width:22px;border-radius:4px}
+.ldot.done{background:var(--green)}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:11px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,184,0,.35)}
+.back-btn{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s;display:block;margin:0 auto}
+.back-btn:hover{color:#fff}
+
+/* STATUS PAGE */
+.status-page{display:none;animation:fadeUp .4s ease}
+.status-page.show{display:block}
+
+/* Captain header card */
+.captain-hcard{background:var(--card);border:1px solid var(--bw);border-radius:18px;padding:22px;margin-bottom:20px;display:flex;align-items:center;gap:16px}
+.cap-av{width:54px;height:54px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:grid;place-items:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#000;flex-shrink:0}
+.cap-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:3px}
+.cap-vehicle{font-size:13px;color:var(--muted);margin-bottom:4px}
+.cap-refid{font-family:monospace;font-size:12px;color:var(--gold);background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);padding:2px 9px;border-radius:6px;display:inline-block}
+
+/* BIG STATUS CARD */
+.status-card{border-radius:18px;padding:24px;margin-bottom:20px;text-align:center;position:relative;overflow:hidden}
+.sc-icon{font-size:52px;margin-bottom:14px;display:block}
+.sc-status-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;opacity:.7}
+.sc-status-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
+.sc-status-msg{font-size:13px;line-height:1.75;opacity:.8;max-width:400px;margin:0 auto}
+
+/* Status colour themes */
+.sc-submitted{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);color:#60a5fa}
+.sc-review{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);color:#fbbf24}
+.sc-pending{background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);color:#fb923c}
+.sc-mismatch{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#f87171}
+.sc-inappropriate{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#f87171}
+.sc-inspection-sched{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);color:#c084fc}
+.sc-inspection-done{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);color:#c084fc}
+.sc-approved{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:#4ade80}
+.sc-rejected{background:rgba(239,68,68,.1);border:2px solid rgba(239,68,68,.35);color:#f87171}
+.sc-resubmit{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);color:#fbbf24}
+
+/* Rejection reason box */
+.rejection-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:18px;margin-bottom:20px}
+.rj-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f87171;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.rj-reason{font-size:14px;color:#fca5a5;line-height:1.75}
+
+/* Documents pending box */
+.docs-pending-box{background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.25);border-radius:14px;padding:18px;margin-bottom:20px}
+.dp-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fb923c;margin-bottom:10px}
+.dp-list{display:flex;flex-direction:column;gap:8px}
+.dp-item{display:flex;align-items:center;gap:10px;font-size:13px;color:#fed7aa}
+.dp-item-icon{width:22px;height:22px;border-radius:6px;background:rgba(249,115,22,.2);display:grid;place-items:center;font-size:11px;flex-shrink:0}
+
+/* TIMELINE */
+.timeline-wrap{background:var(--card);border:1px solid var(--bw);border-radius:18px;padding:22px;margin-bottom:20px}
+.timeline-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;position:relative}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;position:relative;z-index:1;transition:all .3s}
+.tl-dot.done{background:var(--green);color:#fff;border:2px solid var(--green)}
+.tl-dot.active{background:var(--gold);color:#000;border:2px solid var(--gold);box-shadow:0 0 14px rgba(255,184,0,.4)}
+.tl-dot.fail{background:var(--red);color:#fff;border:2px solid var(--red)}
+.tl-dot.pending{background:var(--card2);color:var(--muted);border:2px solid rgba(255,255,255,.1)}
+.tl-line{flex:1;width:2px;background:rgba(255,255,255,.07);margin:2px 0;min-height:24px}
+.tl-line.done{background:var(--green)}
+.tl-line.active{background:linear-gradient(to bottom,var(--gold),rgba(255,184,0,.2))}
+.tl-right{flex:1;padding:4px 0 20px}
+.tl-label{font-weight:700;font-size:13px;margin-bottom:2px}
+.tl-label.done{color:var(--green)}
+.tl-label.active{color:var(--gold)}
+.tl-label.fail{color:var(--red)}
+.tl-label.pending{color:var(--muted)}
+.tl-sub{font-size:11px;color:var(--muted);line-height:1.5}
+.tl-date{font-size:10px;color:var(--muted);margin-top:3px;font-style:italic}
+
+/* Action buttons */
+.action-row{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.act-btn-primary{padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:11px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.act-btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(255,184,0,.35)}
+.act-btn-wa{padding:13px;background:#25d366;color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:filter .2s}
+.act-btn-wa:hover{filter:brightness(1.1)}
+.act-btn-ghost{padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:11px;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:'DM Sans',sans-serif}
+.act-btn-ghost:hover{background:rgba(255,255,255,.1);color:#fff}
+
+/* Info items */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.info-item{background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px 14px}
+.info-lbl{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.info-val{font-size:13px;font-weight:600}
+.info-val.gold{color:var(--gold)}
+.info-val.green{color:var(--green)}
+.info-val.red{color:var(--red)}
+.info-val.mono{font-family:monospace;letter-spacing:.5px}
+
+/* Approved congratulations */
+.congrats-banner{background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(16,185,129,.06));border:1px solid rgba(34,197,94,.3);border-radius:16px;padding:22px;text-align:center;margin-bottom:20px}
+.cb-ring{width:68px;height:68px;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.4);border-radius:50%;display:grid;place-items:center;font-size:28px;margin:0 auto 14px;animation:ringPulse 2s infinite}
+@keyframes ringPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.3)}50%{box-shadow:0 0 0 12px rgba(34,197,94,0)}}
+.cb-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#4ade80;margin-bottom:8px}
+.cb-msg{font-size:13px;color:rgba(74,222,128,.75);line-height:1.75}
+
+/* Sign out */
+.signout-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;margin:0 auto;padding:8px;transition:color .2s}
+.signout-btn:hover{color:#f87171}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="sjcabs.html" class="nlogo">
+    <svg viewBox="0 0 600 120"><text x="300" y="92" text-anchor="middle" font-family="'Arial Black','Helvetica Neue',Arial,sans-serif" font-size="88" font-weight="900" fill="#FFB800" letter-spacing="-2">SJ CABS</text></svg>
+  </a>
+  <div class="nav-links">
+    <a href="captain.html" class="nav-link">Register</a>
+    <a href="captain-status.html" class="nav-link active">Check Status</a>
+    <a href="sjcabs.html" class="nav-link">← Website</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-inner">
+
+    <!-- ── LOGIN SECTION ── -->
+    <div id="loginSection">
+      <div class="login-card">
+        <div class="lc-top">
+          <div class="lc-badge"><span></span>Captain Portal</div>
+          <div class="lc-title">Check Registration Status</div>
+          <div class="lc-sub">Enter the mobile number you used during registration to view your application status.</div>
+        </div>
+
+        <!-- Step 1: Mobile -->
+        <div class="lc-body" id="lstep1">
+          <div class="ldots"><div class="ldot active"></div><div class="ldot"></div></div>
+          <div class="lf">
+            <label>Registered Mobile Number</label>
+            <input type="tel" id="capPhone" placeholder="Enter your 10-digit mobile number" maxlength="15" autocomplete="off">
+          </div>
+          <div class="lerr" id="capErr1"></div>
+          <button class="login-btn" onclick="sendCapOTP()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Send OTP via WhatsApp
+          </button>
+          <div class="lhint">Demo OTP: <strong>1234</strong> · Use the number you registered with</div>
+        </div>
+
+        <!-- Step 2: OTP -->
+        <div class="lc-body" id="lstep2" style="display:none">
+          <div class="ldots"><div class="ldot done"></div><div class="ldot active"></div></div>
+          <div class="lhint">OTP sent to <strong id="capOtpSentTo"></strong></div>
+          <div class="lf">
+            <label>Enter 4-Digit OTP</label>
+            <div class="otp-row">
+              <input type="text" id="co1" maxlength="1" inputmode="numeric" oninput="com(this,'co2')" onkeydown="cob(event,'',this)">
+              <input type="text" id="co2" maxlength="1" inputmode="numeric" oninput="com(this,'co3')" onkeydown="cob(event,'co1',this)">
+              <input type="text" id="co3" maxlength="1" inputmode="numeric" oninput="com(this,'co4')" onkeydown="cob(event,'co2',this)">
+              <input type="text" id="co4" maxlength="1" inputmode="numeric" oninput="com(this,'')"  onkeydown="cob(event,'co3',this)">
+            </div>
+          </div>
+          <div class="lerr" id="capErr2"></div>
+          <button class="login-btn" onclick="verifyCapOTP()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Verify & View Status
+          </button>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--muted)">Didn't get it? <span style="color:var(--gold);cursor:pointer" onclick="resendCapOTP()">Resend OTP</span></span>
+            <button class="back-btn" onclick="goCapStep1()">← Change number</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STATUS SECTION ── -->
+    <div class="status-page" id="statusSection">
+
+      <!-- Captain identity card -->
+      <div class="captain-hcard">
+        <div class="cap-av" id="capAv">S</div>
+        <div>
+          <div class="cap-name" id="capName">Suresh Patil</div>
+          <div class="cap-vehicle" id="capVehicle">Hyundai Aura S CNG</div>
+          <span class="cap-refid" id="capRefId">SJCAP-—</span>
+        </div>
+        <button class="signout-btn" style="margin-left:auto;margin-top:0" onclick="capSignOut()">↩ Sign Out</button>
+      </div>
+
+      <!-- Big status card -->
+      <div id="bigStatusCard"></div>
+
+      <!-- Rejection reason (if rejected) -->
+      <div id="rejectionBox" style="display:none">
+        <div class="rejection-box">
+          <div class="rj-title">⚠ Reason for Rejection</div>
+          <div class="rj-reason" id="rejectionReason"></div>
+        </div>
+      </div>
+
+      <!-- Pending documents (if docs pending) -->
+      <div id="pendingDocsBox" style="display:none">
+        <div class="docs-pending-box">
+          <div class="dp-title">📎 Documents Requiring Attention</div>
+          <div class="dp-list" id="pendingDocsList"></div>
+        </div>
+      </div>
+
+      <!-- Congratulations (if approved) -->
+      <div id="congratsBox" style="display:none">
+        <div class="congrats-banner">
+          <div class="cb-ring">🎉</div>
+          <div class="cb-title">Welcome to SJ Cabs!</div>
+          <div class="cb-msg">Your application has been approved. Our team will contact you within 24 hours to complete your onboarding, explain the platform and assign your first trip.</div>
+        </div>
+      </div>
+
+      <!-- Application details -->
+      <div class="info-grid" id="appInfoGrid"></div>
+
+      <!-- Timeline -->
+      <div class="timeline-wrap">
+        <div class="timeline-title">📋 Application Timeline</div>
+        <div class="timeline" id="appTimeline"></div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-row" id="actionRow"></div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   STATUS DEFINITIONS
+═══════════════════════════════ */
+const STATUS_CONFIG = {
+  submitted: {
+    icon:'📤', label:'Application Submitted', theme:'sc-submitted',
+    title:'Application Received',
+    msg:'Your application has been successfully submitted. Our team will begin reviewing your documents shortly. You will receive a WhatsApp notification once the review starts.',
+    timelineStep: 1
+  },
+  under_review: {
+    icon:'🔍', label:'Under Review', theme:'sc-review',
+    title:'Documents Under Review',
+    msg:'Our verification team is currently reviewing your submitted documents and vehicle details. This process typically takes 24–48 hours. Please ensure your phone is reachable.',
+    timelineStep: 2
+  },
+  documents_pending: {
+    icon:'📎', label:'Documents Pending', theme:'sc-pending',
+    title:'Additional Documents Required',
+    msg:'Some documents are missing or incomplete. Please log into the Captain Portal and re-upload the required documents at the earliest to avoid delays.',
+    timelineStep: 2
+  },
+  documents_not_matching: {
+    icon:'⚠️', label:'Documents Not Matching', theme:'sc-mismatch',
+    title:'Document Details Do Not Match',
+    msg:'There are discrepancies between the details you entered and what appears on your submitted documents. Please review and resubmit with corrected information.',
+    timelineStep: 2
+  },
+  document_not_appropriate: {
+    icon:'🚫', label:'Document Not Appropriate', theme:'sc-inappropriate',
+    title:'Document Quality Issue',
+    msg:'One or more documents you uploaded are unclear, damaged, or do not meet our quality standards. Please retake the photos in good lighting and resubmit.',
+    timelineStep: 2
+  },
+  inspection_scheduled: {
+    icon:'📅', label:'Inspection Scheduled', theme:'sc-inspection-sched',
+    title:'Vehicle Inspection Scheduled',
+    msg:'Your documents have been verified. Our team will inspect your vehicle in person. You will receive a call to schedule the inspection at a convenient time and location.',
+    timelineStep: 3
+  },
+  inspection_completed: {
+    icon:'✅', label:'Inspection Completed', theme:'sc-inspection-done',
+    title:'Vehicle Inspection Completed',
+    msg:'Your vehicle inspection has been successfully completed. Final review is in progress. You will receive approval notification via WhatsApp very shortly.',
+    timelineStep: 4
+  },
+  resubmission_required: {
+    icon:'🔄', label:'Resubmission Required', theme:'sc-resubmit',
+    title:'Please Resubmit Documents',
+    msg:'Your application requires resubmission of certain documents. Please visit the Captain Portal to upload the corrected documents. Our team will review them promptly.',
+    timelineStep: 2
+  },
+  approved: {
+    icon:'🎉', label:'Approved', theme:'sc-approved',
+    title:'Application Approved!',
+    msg:'Congratulations! You are now an official SJ Cabs Captain Partner. Our onboarding team will contact you within 24 hours.',
+    timelineStep: 5
+  },
+  rejected: {
+    icon:'❌', label:'Rejected', theme:'sc-rejected',
+    title:'Application Rejected',
+    msg:'Unfortunately, your application has been rejected. Please read the reason below. You may contact our support team or re-apply after resolving the issues.',
+    timelineStep: 5
+  },
+};
+
+const TIMELINE_STEPS = [
+  { key:'submitted',    label:'Application Submitted',       sub:'Application received and ref ID generated' },
+  { key:'review',       label:'Document Verification',       sub:'Team reviewing all uploaded documents' },
+  { key:'inspection',   label:'Vehicle Inspection',          sub:'Physical inspection of the vehicle' },
+  { key:'final_review', label:'Final Review',                sub:'Last check before decision' },
+  { key:'decision',     label:'Decision',                    sub:'Approval or rejection issued' },
+];
+
+const PENDING_DOC_NAMES = {
+  'rc-front':'RC Front Side','rc-back':'RC Back Side','insurance':'Insurance Certificate',
+  'tax':'Road Tax Receipt','fitness':'Fitness Certificate','permit':'Commercial Permit',
+  'veh-front':'Vehicle Front Photo','veh-right':'Vehicle Right Side Photo',
+  'veh-left':'Vehicle Left Side Photo','veh-rear':'Vehicle Rear Photo',
+  'aadhaar-front':'Aadhaar Front','aadhaar-back':'Aadhaar Back',
+  'dl-front':'Driving Licence Front','dl-back':'Driving Licence Back','pvc':'Police Verification Certificate'
+};
+
+let currentCaptain = null;
+
+/* ═══════════════════════════════
+   OTP FLOW
+═══════════════════════════════ */
+function sendCapOTP(){
+  const val = document.getElementById('capPhone').value.trim();
+  const err = document.getElementById('capErr1');
+  err.classList.remove('show');
+  const digits = val.replace(/\D/g,'');
+  const last10 = digits.length>=10?digits.slice(-10):'';
+  if(last10.length<10||!/^[6-9]/.test(last10)){
+    err.textContent='Please enter a valid 10-digit Indian mobile number.';
+    err.classList.add('show'); return;
+  }
+  // Check if application exists
+  const all = JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  const match = all.find(c=>c.contact&&c.contact.mobile&&c.contact.mobile.replace(/\D/g,'').slice(-10)===last10);
+  if(!match){
+    err.textContent='No registration found for this number. Please check the number or register first.';
+    err.classList.add('show'); return;
+  }
+  document.getElementById('capOtpSentTo').textContent='+91 '+last10.slice(0,5)+' '+last10.slice(5);
+  document.getElementById('lstep1').style.display='none';
+  document.getElementById('lstep2').style.display='flex';
+  document.getElementById('lstep2').style.flexDirection='column';
+  document.getElementById('lstep2').style.gap='16px';
+  setTimeout(()=>document.getElementById('co1').focus(),100);
+}
+function com(el,nid){if(el.value&&nid)document.getElementById(nid).focus();}
+function cob(e,pid,el){if(e.key==='Backspace'&&!el.value&&pid)document.getElementById(pid).focus();}
+function resendCapOTP(){['co1','co2','co3','co4'].forEach(id=>document.getElementById(id).value='');document.getElementById('co1').focus();document.getElementById('capErr2').classList.remove('show');}
+function goCapStep1(){
+  document.getElementById('lstep2').style.display='none';
+  document.getElementById('lstep1').style.display='flex';
+  document.getElementById('lstep1').style.flexDirection='column';
+  document.getElementById('lstep1').style.gap='16px';
+  ['co1','co2','co3','co4'].forEach(id=>document.getElementById(id).value='');
+}
+function verifyCapOTP(){
+  const otp=['co1','co2','co3','co4'].map(id=>document.getElementById(id).value).join('');
+  const err=document.getElementById('capErr2');
+  if(!/^\d{4}$/.test(otp)){err.textContent='Please enter all 4 digits.';err.classList.add('show');return;}
+  if(otp!=='1234'){err.textContent='Incorrect OTP. Demo OTP is 1234.';err.classList.add('show');return;}
+  const phone = document.getElementById('capPhone').value.trim();
+  const digits = phone.replace(/\D/g,'').slice(-10);
+  const all = JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  const captain = all.find(c=>c.contact&&c.contact.mobile&&c.contact.mobile.replace(/\D/g,'').slice(-10)===digits);
+  if(!captain){err.textContent='Application not found. Please try again.';err.classList.add('show');return;}
+  currentCaptain = captain;
+  showStatus(captain);
+}
+
+/* ═══════════════════════════════
+   SHOW STATUS
+═══════════════════════════════ */
+function showStatus(c) {
+  document.getElementById('loginSection').style.display='none';
+  document.getElementById('statusSection').classList.add('show');
+  const d=c.driver||{}, v=c.vehicle||{};
+  // Captain header
+  document.getElementById('capAv').textContent=(d.name||'C')[0].toUpperCase();
+  document.getElementById('capName').textContent=d.name||'—';
+  document.getElementById('capVehicle').textContent=(v.mfr||'')+' '+(v.model||'')+' '+(v.variant||'')+' · '+(v.regno||'');
+  document.getElementById('capRefId').textContent=c.refId||'—';
+
+  const status = c.captainStatus || 'submitted';
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG['submitted'];
+
+  // Big status card
+  document.getElementById('bigStatusCard').innerHTML=`
+    <div class="status-card ${cfg.theme}" style="margin-bottom:20px">
+      <span class="sc-icon">${cfg.icon}</span>
+      <div class="sc-status-label">${cfg.label}</div>
+      <div class="sc-status-title">${cfg.title}</div>
+      <div class="sc-status-msg">${cfg.msg}</div>
+    </div>`;
+
+  // Rejection reason
+  if(status==='rejected'&&c.rejectionReason){
+    document.getElementById('rejectionBox').style.display='block';
+    document.getElementById('rejectionReason').textContent=c.rejectionReason;
+  } else {document.getElementById('rejectionBox').style.display='none';}
+
+  // Pending docs
+  if((status==='documents_pending'||status==='resubmission_required')&&c.pendingDocs&&c.pendingDocs.length){
+    document.getElementById('pendingDocsBox').style.display='block';
+    document.getElementById('pendingDocsList').innerHTML=c.pendingDocs.map(k=>`
+      <div class="dp-item"><div class="dp-item-icon">📄</div>${PENDING_DOC_NAMES[k]||k}</div>`).join('');
+  } else {document.getElementById('pendingDocsBox').style.display='none';}
+
+  // Congrats
+  document.getElementById('congratsBox').style.display=status==='approved'?'block':'none';
+
+  // Info grid
+  const submittedDate = c.submittedAt?new Date(c.submittedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';
+  const reviewedDate  = c.reviewedAt ?new Date(c.reviewedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'-';
+  document.getElementById('appInfoGrid').innerHTML=`
+    <div class="info-item"><div class="info-lbl">Reference ID</div><div class="info-val mono gold">${c.refId||'—'}</div></div>
+    <div class="info-item"><div class="info-lbl">Status</div><div class="info-val">${cfg.label}</div></div>
+    <div class="info-item"><div class="info-lbl">Submitted On</div><div class="info-val">${submittedDate}</div></div>
+    <div class="info-item"><div class="info-lbl">Last Updated</div><div class="info-val">${reviewedDate}</div></div>
+    <div class="info-item"><div class="info-lbl">Vehicle</div><div class="info-val">${(v.mfr||'')+ ' '+(v.model||'')}</div></div>
+    <div class="info-item"><div class="info-lbl">Reg. Number</div><div class="info-val mono gold">${v.regno||'—'}</div></div>`;
+
+  // Timeline
+  buildTimeline(status, cfg.timelineStep, c);
+
+  // Action buttons
+  buildActionButtons(status, c);
+}
+
+function buildTimeline(status, activeStep, c) {
+  const stepStates = TIMELINE_STEPS.map((step, i) => {
+    const stepNum = i+1;
+    if(status==='rejected'&&stepNum===5) return 'fail';
+    if(stepNum < activeStep) return 'done';
+    if(stepNum === activeStep) return (status==='rejected')?'fail':'active';
+    return 'pending';
+  });
+  const html = TIMELINE_STEPS.map((step,i)=>{
+    const st = stepStates[i];
+    const isLast = i===TIMELINE_STEPS.length-1;
+    const dotContent = st==='done'?'✓':st==='fail'?'✗':(i+1);
+    const date = i===0&&c.submittedAt?new Date(c.submittedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):
+                 i===TIMELINE_STEPS.length-1&&c.reviewedAt?new Date(c.reviewedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):'';
+    return `<div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot ${st}">${dotContent}</div>
+        ${!isLast?`<div class="tl-line ${st==='done'?'done':st==='active'?'active':''}"></div>`:''}
+      </div>
+      <div class="tl-right">
+        <div class="tl-label ${st}">${step.label}</div>
+        <div class="tl-sub">${step.sub}</div>
+        ${date?`<div class="tl-date">${date}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('appTimeline').innerHTML=html;
+}
+
+function buildActionButtons(status, c) {
+  const mobile = c.contact&&c.contact.mobile?c.contact.mobile.replace(/\D/g,'').slice(-10):'7057691597';
+  const waMsg = encodeURIComponent(`Hi SJ Cabs! I am following up on my Captain registration.\nRef ID: ${c.refId}\nName: ${(c.driver||{}).name||'—'}\nStatus: ${status}\nPlease update me on my application status.`);
+  let btns = '';
+  if(status==='documents_pending'||status==='resubmission_required'||status==='documents_not_matching'||status==='document_not_appropriate'){
+    btns+=`<a href="captain.html" class="act-btn-primary">📎 Re-upload Documents</a>`;
+  }
+  if(status==='approved'){
+    btns+=`<a href="driver.html" class="act-btn-primary">🚗 Open Driver Portal</a>`;
+  }
+  btns+=`<a href="https://wa.me/917057691597?text=${waMsg}" target="_blank" class="act-btn-wa">
+    <svg width="16" height="16" viewBox="0 0 32 32" fill="none"><path d="M16 3C8.82 3 3 8.82 3 16c0 2.3.62 4.52 1.8 6.46L3 29l6.7-1.76A13 13 0 0016 29c7.18 0 13-5.82 13-13S23.18 3 16 3z" fill="white"/><path d="M21.5 18.9c-.3-.15-1.76-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-1 1.2-.18.2-.36.22-.66.07a8.3 8.3 0 01-2.43-1.5 9.2 9.2 0 01-1.68-2.1c-.18-.3 0-.47.14-.62.12-.13.3-.34.45-.52.14-.18.19-.3.29-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.5-.5-.67-.51-.17 0-.37-.02-.57-.02-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.1 4.49.71.3 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.76-.72 2-1.41.26-.7.26-1.3.18-1.42-.07-.12-.27-.2-.57-.35z" fill="#0D0F18"/></svg>
+    Contact SJ Cabs Support
+  </a>`;
+  if(status==='rejected'){
+    btns+=`<a href="captain.html" class="act-btn-ghost">🔄 Apply Again</a>`;
+  }
+  btns+=`<a href="sjcabs.html" class="act-btn-ghost">← Back to Website</a>`;
+  document.getElementById('actionRow').innerHTML=btns;
+}
+
+function capSignOut(){
+  currentCaptain=null;
+  document.getElementById('statusSection').classList.remove('show');
+  document.getElementById('loginSection').style.display='block';
+  document.getElementById('capPhone').value='';
+  ['co1','co2','co3','co4'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lstep2').style.display='none';
+  document.getElementById('lstep1').style.display='flex';
+  document.getElementById('lstep1').style.flexDirection='column';
+  document.getElementById('lstep1').style.gap='16px';
+}
+
+/* Demo: inject a test captain if localStorage is empty */
+(function seedDemo(){
+  const all=JSON.parse(localStorage.getItem('sjCaptains')||'[]');
+  if(all.length) return;
+  const demo=[{
+    refId:'SJCAP-20250526-1001',
+    status:'pending',
+    captainStatus:'under_review',
+    submittedAt:new Date(Date.now()-2*24*3600000).toISOString(),
+    contact:{mobile:'+91 98234 56789'},
+    driver:{name:'Suresh Patil',dob:'1990-05-15',dlno:'MH12-2019-0045678',dlexp:'2029-05-14',pvcdate:'2025-04-10'},
+    vehicle:{mfr:'Hyundai',model:'Aura',variant:'S CNG',fuel:'CNG',mfrYear:'2023',dop:'2024-03-15',regno:'MH12ZE7415',colour:'White',seats:'4',ac:'yes'},
+    uploads:{'rc-front':'rc_front.jpg','rc-back':'rc_back.jpg','insurance':'insurance.pdf','veh-front':'front.jpg','veh-right':'right.jpg','veh-left':'left.jpg','veh-rear':'rear.jpg','aadhaar-front':'aadhaar_f.jpg','aadhaar-back':'aadhaar_b.jpg','dl-front':'dl_f.jpg','dl-back':'dl_b.jpg','pvc':'pvc.pdf'},
+    vwsChecks:{},vwsInspection:{},vwsRemarks:{}
+  }];
+  localStorage.setItem('sjCaptains',JSON.stringify(demo));
+})();
+</script>
+</body>
+</html>
